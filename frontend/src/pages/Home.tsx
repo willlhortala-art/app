@@ -31,11 +31,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-// --- Catalogue Intégré ---
+// --- Catalogue Intégré & Matrice de Qualification ---
 export interface VehicleModel {
   id: string;
   name: string;
-  type: 'camion' | 'remorque';
+  type: 'camion' | 'remorque' | 'kiosque';
   category: 'Standard' | 'Vintage' | 'Sur-mesure';
   description: string;
   basePrice: number;
@@ -43,8 +43,10 @@ export interface VehicleModel {
   ptacKg: number;
   lengthMeters: number;
   widthMeters: number;
-  licenseRequired: 'Permis B' | 'Permis BE';
-  maxElectricalKw: number;
+  licenseRequired: 'Permis B' | 'Permis BE' | 'N/A';
+  defaultPowerSupply: 'Mono 230 V standard' | 'Mono 230 V ou prise 32 A' | 'Triphasé obligatoire' | '32 A ou triphasé' | 'Indéterminé';
+  alertLevel: 'vert' | 'orange' | 'rouge';
+  alertMessage: string;
 }
 
 export interface Equipment {
@@ -60,103 +62,117 @@ export interface Equipment {
 
 const VEHICLES: VehicleModel[] = [
   {
-    id: 'remorque-300',
-    name: 'Remorque Foodtruck 3.00m Compact',
+    id: 'remorque-standard',
+    name: 'Remorque Food Truck (3m à 5.20m)',
     type: 'remorque',
     category: 'Standard',
-    description: 'Format idéal pour 1 à 2 personnes. Très maniable, parfaite pour le snacking, la crêperie ou le café mobile.',
-    basePrice: 24880,
-    emptyWeightKg: 850,
-    ptacKg: 1350,
-    lengthMeters: 3.0,
-    widthMeters: 2.0,
-    licenseRequired: 'Permis B',
-    maxElectricalKw: 9.0,
-  },
-  {
-    id: 'remorque-360',
-    name: 'Remorque Foodtruck 3.60m Polyvalente',
-    type: 'remorque',
-    category: 'Standard',
-    description: 'Le best-seller remorque. Offre l\'espace nécessaire pour installer un pôle cuisson complet et un poste de froid.',
-    basePrice: 27025,
+    description: 'Format polyvalent pour snacking, pâtes, asiatique, empanadas, cassoulet ou traiteur.',
+    basePrice: 27000,
     emptyWeightKg: 1050,
     ptacKg: 1600,
     lengthMeters: 3.6,
     widthMeters: 2.1,
     licenseRequired: 'Permis B',
-    maxElectricalKw: 12.0,
+    defaultPowerSupply: 'Mono 230 V standard',
+    alertLevel: 'vert',
+    alertMessage: 'Vert si cuisson gaz. Orange si plancha, friteuse ou four électriques ajoutés[cite: 1].',
   },
   {
-    id: 'remorque-420',
-    name: 'Remorque Foodtruck 4.20m Grand Volume',
+    id: 'remorque-vide',
+    name: 'Remorque Food Truck Vide',
+    type: 'remorque',
+    category: 'Sur-mesure',
+    description: 'Base électrique nue, équipements définis entièrement par le client.',
+    basePrice: 21000,
+    emptyWeightKg: 800,
+    ptacKg: 1500,
+    lengthMeters: 3.5,
+    widthMeters: 2.0,
+    licenseRequired: 'Permis B',
+    defaultPowerSupply: 'Indéterminé',
+    alertLevel: 'rouge',
+    alertMessage: 'Rouge : aucun engagement sans liste précise des appareils[cite: 1].',
+  },
+  {
+    id: 'remorque-pizza-elec',
+    name: 'Remorque Pizza Four Électrique',
     type: 'remorque',
     category: 'Standard',
-    description: 'Conçue pour les équipes de 2 à 4 personnes et les gros débits sur événements et festivals.',
-    basePrice: 30810,
-    emptyWeightKg: 1300,
-    ptacKg: 2000,
-    lengthMeters: 4.2,
+    description: 'Équipée d\'une table froide, saladette et four électrique double chambre.',
+    basePrice: 32000,
+    emptyWeightKg: 1200,
+    ptacKg: 1800,
+    lengthMeters: 4.0,
     widthMeters: 2.1,
     licenseRequired: 'Permis BE',
-    maxElectricalKw: 15.0,
+    defaultPowerSupply: 'Triphasé obligatoire',
+    alertLevel: 'rouge',
+    alertMessage: 'Rouge : ne pas signer sans confirmation de l\'emplacement en triphasé[cite: 1].',
   },
   {
-    id: 'remorque-520',
-    name: 'Remorque Foodtruck 5.20m Cuisine XXL',
+    id: 'remorque-labo',
+    name: 'Remorque Labo 5.20m / Pâtisserie',
     type: 'remorque',
     category: 'Standard',
-    description: 'Espace traiteur / restaurant ambulant complet. Permet de séparer les zones de préparation et de cuisson.',
-    basePrice: 34200,
-    emptyWeightKg: 1600,
+    description: 'Table et armoire froides, hotte, vitrine, four UNOX Bakerlux.',
+    basePrice: 35000,
+    emptyWeightKg: 1500,
     ptacKg: 2500,
     lengthMeters: 5.2,
     widthMeters: 2.2,
     licenseRequired: 'Permis BE',
-    maxElectricalKw: 22.0,
+    defaultPowerSupply: '32 A ou triphasé',
+    alertLevel: 'rouge',
+    alertMessage: 'Rouge : bureau d\'études obligatoire avant devis signé[cite: 1].',
   },
   {
-    id: 'remorque-vintage-300',
-    name: 'Remorque Vintage Retro 3.00m (Look HY)',
-    type: 'remorque',
-    category: 'Vintage',
-    description: 'Design rétro emblématique inspiré des véhicules anciens, avec tout le confort et l\'hygiène moderne.',
-    basePrice: 32070,
-    emptyWeightKg: 950,
-    ptacKg: 1500,
-    lengthMeters: 3.0,
-    widthMeters: 2.0,
-    licenseRequired: 'Permis B',
-    maxElectricalKw: 9.0,
-  },
-  {
-    id: 'camion-370',
-    name: 'Camion Foodtruck Master / Jumper 3.70m',
+    id: 'camion-burger',
+    name: 'Camion Food Truck Burger / Traiteur',
     type: 'camion',
     category: 'Standard',
-    description: 'Véhicule utilitaire neuf avec cellule magasin sur-mesure plancher bas. Permis B standard.',
+    description: 'Froid, hotte, vitrines, plans inox; cuisson gaz ou options électriques.',
     basePrice: 48000,
     emptyWeightKg: 2600,
     ptacKg: 3500,
     lengthMeters: 3.7,
     widthMeters: 2.2,
     licenseRequired: 'Permis B',
-    maxElectricalKw: 15.0,
+    defaultPowerSupply: 'Mono 230 V standard',
+    alertLevel: 'vert',
+    alertMessage: 'Vert en configuration gaz ; attention si équipements électriques puissants[cite: 1].',
   },
   {
-    id: 'camion-pizza-rotisserie',
-    name: 'Camion Pizza / Rôtisserie Cellule Renforcée',
+    id: 'camion-pressing',
+    name: 'Camion Pressing / Pro Spécifique',
     type: 'camion',
     category: 'Sur-mesure',
-    description: 'Châssis et plancher renforcés pour supporter un four à bois/gaz lourd ou une rôtisserie grand débit.',
-    basePrice: 54000,
-    emptyWeightKg: 2750,
+    description: 'Eau, repassage, emballeuse; machines industrielles selon projet.',
+    basePrice: 52000,
+    emptyWeightKg: 2800,
     ptacKg: 3500,
     lengthMeters: 4.0,
     widthMeters: 2.2,
     licenseRequired: 'Permis B',
-    maxElectricalKw: 18.0,
+    defaultPowerSupply: '32 A ou triphasé',
+    alertLevel: 'rouge',
+    alertMessage: 'Rouge : puissance des machines à connaître avant chiffrage[cite: 1].',
   },
+  {
+    id: 'kiosque-restaurant',
+    name: 'Kiosque / Container Restaurant 20 pieds',
+    type: 'kiosque',
+    category: 'Standard',
+    description: 'Froid, hotte, plans inox, cuisine sur mesure gaz ou électrique.',
+    basePrice: 39000,
+    emptyWeightKg: 2200,
+    ptacKg: 3500,
+    lengthMeters: 6.0,
+    widthMeters: 2.4,
+    licenseRequired: 'N/A',
+    defaultPowerSupply: 'Mono 230 V standard',
+    alertLevel: 'orange',
+    alertMessage: 'Orange : fixer la carte et les appareils avant engagement[cite: 1].',
+  }
 ];
 
 const EQUIPMENTS: Equipment[] = [
@@ -172,13 +188,13 @@ const EQUIPMENTS: Equipment[] = [
   },
   {
     id: 'fryer-elec-2x12',
-    name: 'Friteuse double 2x12L Électrique (Triphasé)',
+    name: 'Friteuse double 2x12L Électrique (Triphasé/32A)',
     category: 'cuisson',
     energyType: 'electric',
     powerWatts: 12000,
     weightKg: 45,
     price: 1980,
-    description: 'Chauffe ultra-rapide. Nécessite une alimentation triphasée 400V.',
+    description: 'Chauffe ultra-rapide. Fait basculer l\'alerte en Orange/Rouge.',
   },
   {
     id: 'plancha-chrome-gas',
@@ -188,17 +204,17 @@ const EQUIPMENTS: Equipment[] = [
     powerWatts: 0,
     weightKg: 55,
     price: 1890,
-    description: 'Plaque miroir 12mm sans transfert de goût. Nettoyage au glaçage.',
+    description: 'Plaque miroir 12mm sans transfert de goût.',
   },
   {
-    id: 'four-pizza-gas',
-    name: 'Four à Pizza Professionnel Gaz (4 pizzas 33cm)',
+    id: 'four-pizza-elec',
+    name: 'Four à Pizza Professionnel Électrique Double',
     category: 'cuisson',
-    energyType: 'gas',
-    powerWatts: 150,
-    weightKg: 115,
-    price: 3600,
-    description: 'Sole en pierre réfractaire. Température jusqu\'à 450°C.',
+    energyType: 'electric',
+    powerWatts: 9500,
+    weightKg: 130,
+    price: 3800,
+    description: 'Nécessite une alimentation en triphasé ou 32A.',
   },
   {
     id: 'fridge-table-3p',
@@ -211,46 +227,6 @@ const EQUIPMENTS: Equipment[] = [
     description: 'Capacité 410L avec plan de travail inox brossé.',
   },
   {
-    id: 'vitrine-boisson',
-    name: 'Vitrine Réfrigérée Boissons 350L (Porte vitrée)',
-    category: 'froid',
-    energyType: 'electric',
-    powerWatts: 280,
-    weightKg: 78,
-    price: 1450,
-    description: 'Éclairage LED vertical pour mise en valeur côté client.',
-  },
-  {
-    id: 'saladette-prep',
-    name: 'Saladette de Préparation Burger/Sandwich (GN 1/3)',
-    category: 'froid',
-    energyType: 'electric',
-    powerWatts: 250,
-    weightKg: 42,
-    price: 1120,
-    description: 'Maintien au frais des ingrédients avec couvercle rabattable.',
-  },
-  {
-    id: 'pack-gas-4-bot',
-    name: 'Caisson & Coffre Gaz Étanche VASP (4 Bouteilles)',
-    category: 'energie',
-    energyType: 'gas',
-    powerWatts: 0,
-    weightKg: 40,
-    price: 1650,
-    description: 'Conforme aux normes DDPP/Qualigaz. Inverseur automatique inclus.',
-  },
-  {
-    id: 'groupe-inverter-7kw',
-    name: 'Groupe Électrogène Insonorisé 7kW Inverter (Essence)',
-    category: 'energie',
-    energyType: 'none',
-    powerWatts: 0,
-    weightKg: 95,
-    price: 3200,
-    description: 'Permet de faire tourner le froid et l\'éclairage en autonomie complète.',
-  },
-  {
     id: 'pack-hygiene-vasp',
     name: 'Pack Lave-mains Autonome Commande Au Genou',
     category: 'hygiene',
@@ -258,7 +234,7 @@ const EQUIPMENTS: Equipment[] = [
     powerWatts: 1500,
     weightKg: 25,
     price: 1150,
-    description: 'Obligatoire VASP/HACCP. Pompe 12V, réserve eau propre/usée 20L + chauffe-eau.',
+    description: 'Obligatoire VASP/HACCP.',
   },
   {
     id: 'covering-total',
@@ -268,7 +244,7 @@ const EQUIPMENTS: Equipment[] = [
     powerWatts: 0,
     weightKg: 10,
     price: 2900,
-    description: 'Impression HD vinyle coulé pelliculé anti-UV garanti 5 ans.',
+    description: 'Impression HD vinyle coulé anti-UV.',
   }
 ];
 
@@ -310,8 +286,29 @@ export default function Home() {
     return watts / 1000;
   }, [selectedEquipmentIds]);
 
+  // Qualification dynamique selon la matrice commerciale
+  const dynamicQualification = useMemo(() => {
+    const hasElectricCooking = selectedEquipmentIds.some(id => {
+      const eq = EQUIPMENTS.find(e => e.id === id);
+      return eq?.category === 'cuisson' && eq?.energyType === 'electric';
+    });
+
+    const isVehicleEmpty = selectedVehicle.id === 'remorque-vide';
+    const isHeavyElectric = totalPowerKw > 7.4 || selectedVehicle.defaultPowerSupply.includes('Triphasé');
+
+    if (isVehicleEmpty) {
+      return { level: 'rouge', badgeClass: 'bg-red-500 text-white', label: 'ROUGE : Aucun engagement sans liste précise[cite: 1]' };
+    }
+    if (isHeavyElectric || selectedVehicle.alertLevel === 'rouge') {
+      return { level: 'rouge', badgeClass: 'bg-red-500 text-white', label: 'ROUGE : Bureau d\'études / Triphasé obligatoire[cite: 1]' };
+    }
+    if (hasElectricCooking || totalPowerKw > 3.5 || selectedVehicle.alertLevel === 'orange') {
+      return { level: 'orange', badgeClass: 'bg-amber-500 text-slate-950', label: 'ORANGE : Appareil électrique / Prévoir 32A[cite: 1]' };
+    }
+    return { level: 'vert', badgeClass: 'bg-emerald-500 text-white', label: 'VERT : Standard gaz / Froid & éclairage 230V[cite: 1]' };
+  }, [selectedVehicle, selectedEquipmentIds, totalPowerKw]);
+
   const isOverweight = totalWeightKg > selectedVehicle.ptacKg;
-  const electricalRequirement = totalPowerKw > 7.4 ? "Triphasé 400V Requis" : "Monophasé 230V Standard";
 
   const toggleEquipment = (id: string) => {
     setSelectedEquipmentIds((prev) =>
@@ -327,7 +324,7 @@ export default function Home() {
       setIsSubmitting(false);
       setIsDialogOpen(false);
       toast.success("Demande d'étude enregistrée !", {
-        description: `Merci ${clientName || "cher client"}. Un conseiller technique Beau Comme Un Camion vous recontactera sous 24h.`,
+        description: `Merci ${clientName || "cher client"}. Qualification commerciale validée (${dynamicQualification.label}).`,
       });
       setClientName("");
       setClientEmail("");
@@ -344,29 +341,14 @@ export default function Home() {
         <div className="max-w-7xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs sm:text-sm font-medium mb-6">
             <Truck className="w-4 h-4" />
-            Configurateur Officiel • Beau Comme Un Camion
+            Matrice de Qualification Commerciale • Beau Comme Un Camion
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
-            Concevez votre unité mobile professionnelle sur-mesure
+            Concevez et qualifiez votre unité mobile
           </h1>
           <p className="mt-4 text-base sm:text-xl text-slate-300 max-w-2xl mx-auto">
-            Simulez en temps réel le PTAC, la puissance électrique et le budget de votre futur foodtruck ou remorque.
+            Vérification automatique des règles de préqualification, du PTAC et des bilans de puissance[cite: 1].
           </p>
-
-          <div className="mt-8 flex flex-wrap justify-center gap-6 text-xs sm:text-sm text-slate-400">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              Normes VASP / DDPP / CE
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Hammer className="w-4 h-4 text-amber-400" />
-              Fabrication française artisanale
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-blue-400" />
-              Étude technique personnalisée
-            </span>
-          </div>
         </div>
       </header>
 
@@ -378,10 +360,10 @@ export default function Home() {
               <CardHeader>
                 <CardTitle className="text-lg font-bold flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold">1</span>
-                  Choisissez votre modèle de base
+                  Modèle de véhicule & Grille de qualification
                 </CardTitle>
                 <CardDescription>
-                  Remorques et camions neufs conçus pour une exploitation intensive.
+                  Sélectionnez le gabarit de référence issu de la matrice officielle[cite: 1].
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -400,7 +382,7 @@ export default function Home() {
                       <div>
                         <div className="flex justify-between items-start mb-2">
                           <Badge variant={isSelected ? "default" : "secondary"} className="text-[10px]">
-                            {vehicle.type.toUpperCase()} • {vehicle.category}
+                            {vehicle.type.toUpperCase()}
                           </Badge>
                           <span className="text-xs font-semibold text-slate-500">{vehicle.lengthMeters}m</span>
                         </div>
@@ -433,39 +415,41 @@ export default function Home() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-2">
                   <Gauge className="w-4 h-4" />
-                  Contrôle Technique Dynamique : {selectedVehicle.name}
+                  Contrôle & Alerte Commerciale Dynamique
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                <div className={`p-3 rounded-lg border ${isOverweight ? "bg-red-950/50 border-red-500" : "bg-slate-800/60 border-slate-700/50"}`}>
-                  <span className="text-slate-400 block mb-1 flex items-center justify-between">
-                    <span>Poids Chargé Estimé</span>
-                    {isOverweight && <AlertTriangle className="w-4 h-4 text-red-400" />}
+              <CardContent className="space-y-4 text-xs">
+                <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700 flex items-center justify-between">
+                  <span className="text-slate-300 font-medium">Statut de Qualification :</span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${dynamicQualification.badgeClass}`}>
+                    {dynamicQualification.label}
                   </span>
-                  <div className="flex items-baseline gap-1">
-                    <span className={`font-bold text-base ${isOverweight ? "text-red-400" : "text-slate-100"}`}>
-                      {totalWeightKg} kg
+                </div>
+                <p className="text-[11px] text-slate-400 italic">
+                  Règle appliquée : {selectedVehicle.alertMessage}[cite: 1]
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                  <div className={`p-3 rounded-lg border ${isOverweight ? "bg-red-950/50 border-red-500" : "bg-slate-800/60 border-slate-700/50"}`}>
+                    <span className="text-slate-400 block mb-1 flex items-center justify-between">
+                      <span>Poids Chargé</span>
+                      {isOverweight && <AlertTriangle className="w-4 h-4 text-red-400" />}
                     </span>
-                    <span className="text-[10px] text-slate-400">/ PTAC {selectedVehicle.ptacKg} kg</span>
+                    <span className={`font-bold text-base ${isOverweight ? "text-red-400" : "text-slate-100"}`}>
+                      {totalWeightKg} kg / {selectedVehicle.ptacKg} kg max
+                    </span>
                   </div>
-                  <p className="text-[10px] mt-1 text-slate-400">
-                    {isOverweight ? "⚠️ Surcharge PTAC (Permis BE ou allègement requis)" : `Permis requis : ${selectedVehicle.licenseRequired}`}
-                  </p>
-                </div>
 
-                <div className="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
-                  <span className="text-slate-400 block mb-1 flex items-center justify-between">
-                    <span>Puissance Électrique</span>
-                    <BatteryCharging className="w-4 h-4 text-blue-400" />
-                  </span>
-                  <span className="font-bold text-base text-slate-100">{totalPowerKw.toFixed(1)} kW</span>
-                  <p className="text-[10px] mt-1 text-amber-300 font-medium">{electricalRequirement}</p>
-                </div>
+                  <div className="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                    <span className="text-slate-400 block mb-1">Puissance Électrique</span>
+                    <span className="font-bold text-base text-slate-100">{totalPowerKw.toFixed(1)} kW</span>
+                    <p className="text-[10px] mt-1 text-amber-300 font-medium">{selectedVehicle.defaultPowerSupply}</p>
+                  </div>
 
-                <div className="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
-                  <span className="text-slate-400 block mb-1">Dimensions Cellule</span>
-                  <span className="font-bold text-base text-slate-100">{selectedVehicle.lengthMeters}m x {selectedVehicle.widthMeters}m</span>
-                  <p className="text-[10px] mt-1 text-slate-400">Isolation panneau sandwich ISO</p>
+                  <div className="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                    <span className="text-slate-400 block mb-1">Permis Requis</span>
+                    <span className="font-bold text-base text-slate-100">{selectedVehicle.licenseRequired}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -474,10 +458,10 @@ export default function Home() {
               <CardHeader>
                 <CardTitle className="text-lg font-bold flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold">2</span>
-                  Équipements professionnels & Aménagements
+                  Équipements & Options
                 </CardTitle>
                 <CardDescription>
-                  Sélectionnez vos postes de cuisson, froid et options techniques.
+                  Chaque ajout modifie le bilan de puissance et l'alerte de qualification[cite: 1].
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -517,7 +501,7 @@ export default function Home() {
                                 <p className="text-xs text-slate-500 mt-0.5">{eq.description}</p>
                                 <div className="flex gap-3 mt-1.5 text-[10px] text-slate-400 font-medium">
                                   <span>Poids : +{eq.weightKg} kg</span>
-                                  {eq.powerWatts > 0 && <span>Élec : {eq.powerWatts}W</span>}
+                                  {eq.powerWatts > 0 && <span className="text-blue-600">Élec : {eq.powerWatts}W</span>}
                                   {eq.energyType === 'gas' && <span className="text-amber-600">Énergie : Gaz</span>}
                                 </div>
                               </div>
@@ -540,64 +524,29 @@ export default function Home() {
               <Card className="shadow-lg border-amber-500/30 overflow-hidden">
                 <div className="bg-slate-900 text-white p-6">
                   <span className="text-xs font-medium text-amber-400 uppercase tracking-wider block mb-1">
-                    Estimation Totale
+                    Récapitulatif & Chiffrage
                   </span>
                   <div className="flex items-baseline justify-between">
                     <span className="text-3xl font-black">{totalPrice.toLocaleString("fr-FR")} €</span>
                     <span className="text-xs text-slate-400">HT</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-2 flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                    Poids total estimé : {totalWeightKg} kg / {selectedVehicle.ptacKg} kg max
-                  </p>
                 </div>
 
                 <CardContent className="p-6 bg-white space-y-4">
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                      Votre configuration
-                    </h4>
-                    
-                    <div className="flex justify-between items-start text-xs pb-2 border-b border-slate-100">
-                      <div>
-                        <span className="font-bold text-slate-900 block">{selectedVehicle.name}</span>
-                        <span className="text-slate-400">Poids à vide : {selectedVehicle.emptyWeightKg} kg</span>
-                      </div>
-                      <span className="font-semibold text-slate-900">{selectedVehicle.basePrice.toLocaleString("fr-FR")} €</span>
-                    </div>
-
-                    <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-1">
-                      {selectedEquipmentIds.length === 0 ? (
-                        <p className="text-xs text-slate-400 italic">Aucun équipement sélectionné.</p>
-                      ) : (
-                        selectedEquipmentIds.map((id) => {
-                          const eq = EQUIPMENTS.find((e) => e.id === id);
-                          if (!eq) return null;
-                          return (
-                            <div key={eq.id} className="flex justify-between items-center text-xs">
-                              <span className="text-slate-600 truncate pr-2">{eq.name}</span>
-                              <span className="font-medium text-slate-900 shrink-0">+{eq.price.toLocaleString("fr-FR")} €</span>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-100">
+                  <div className="pt-2">
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                      <DialogTrigger>
-                        <div className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 px-4 rounded-md flex items-center justify-center text-base shadow-md cursor-pointer transition-colors">
-                          Recevoir mon Devis Technique
+                      <DialogTrigger asChild>
+                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 text-base shadow-md">
+                          Valider la qualification & Devis
                           <ArrowRight className="w-5 h-5 ml-2" />
-                        </div>
+                        </Button>
                       </DialogTrigger>
 
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
-                          <DialogTitle className="text-xl font-bold">Finaliser ma demande de devis</DialogTitle>
+                          <DialogTitle className="text-xl font-bold">Validation Technique</DialogTitle>
                           <DialogDescription>
-                            Validation de l'étude de poids (PTAC) et transmission du chiffrage détaillé.
+                            Statut de qualification retenu : <span className="font-bold text-slate-900">{dynamicQualification.label}</span>[cite: 1].
                           </DialogDescription>
                         </DialogHeader>
 
@@ -639,33 +588,28 @@ export default function Home() {
                           </div>
 
                           <div className="space-y-1.5">
-                            <Label htmlFor="notes">Notes sur le projet</Label>
+                            <Label htmlFor="notes">Question réflexe (Prise emplacement / Puissance)</Label>
                             <Textarea
                               id="notes"
                               rows={3}
-                              placeholder="Implantation, type de cuisine, contraintes d'emplacement..."
+                              placeholder="230V standard, 32A ou triphasé garanti sur l'emplacement ?"
                               value={projectNotes}
                               onChange={(e) => setProjectNotes(e.target.value)}
                             />
                           </div>
 
-                          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-600 flex justify-between items-center">
-                            <span>Total HT estimé :</span>
-                            <span className="font-extrabold text-slate-900 text-sm">{totalPrice.toLocaleString("fr-FR")} €</span>
-                          </div>
-
                           <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 mt-2"
+                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3"
                           >
                             {isSubmitting ? (
                               <>
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Transmission...
+                                Enregistrement...
                               </>
                             ) : (
-                              "Envoyer la demande"
+                              "Confirmer et Transmettre"
                             )}
                           </Button>
                         </form>
@@ -681,8 +625,8 @@ export default function Home() {
                     <LifeBuoy className="w-5 h-5" />
                   </div>
                   <div>
-                    <h5 className="text-xs font-bold text-slate-900">Support Technique Alternance</h5>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Ce configurateur calcule dynamiquement les limites réglementaires VASP de Beau Comme Un Camion.</p>
+                    <h5 className="text-xs font-bold text-slate-900">Règle de rendez-vous</h5>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Vérifiez systématiquement la prise disponible sur l'emplacement avant tout engagement[cite: 1].</p>
                   </div>
                 </div>
               </Card>
