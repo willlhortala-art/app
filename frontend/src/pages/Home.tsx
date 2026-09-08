@@ -1,14 +1,11 @@
 import { useMemo, useState } from "react";
 import {
-  AlertTriangle,
   ArrowRight,
   CalendarClock,
   Check,
   CheckCircle2,
-  ChevronRight,
   Download,
   FileText,
-  Flame,
   Gauge,
   Hammer,
   ImageIcon,
@@ -39,11 +36,11 @@ import {
 import { cn } from "@/lib/utils";
 
 /* ------------------------------------------------------------------ */
-/*  Mock data — prototype sans backend                                  */
+/*  Mock data — prototype sans backend                                */
 /* ------------------------------------------------------------------ */
 
 const VEHICLES = [
-  { id: "foodtruck", label: "Food truck", note: "Porteur amenage", base: 62000, weeks: 14, icon: Truck },
+  { id: "foodtruck", label: "Food truck", note: "Porteur aménagé", base: 62000, weeks: 14, icon: Truck },
   { id: "remorque", label: "Remorque", note: "Tractable 750kg+", base: 38000, weeks: 9, icon: Package },
   { id: "container", label: "Container", note: "Kiosque fixe 10-20'", base: 52000, weeks: 12, icon: Hammer },
 ] as const;
@@ -51,13 +48,13 @@ const VEHICLES = [
 const SECTORS = [
   { id: "burger", label: "Burger / Frites", coef: 1, extraWeeks: 0 },
   { id: "pizza", label: "Pizza", coef: 1.16, extraWeeks: 2 },
-  { id: "creperie", label: "Creperie", coef: 1.05, extraWeeks: 1 },
+  { id: "creperie", label: "Crêperie", coef: 1.05, extraWeeks: 1 },
   { id: "snacking", label: "Snacking", coef: 0.92, extraWeeks: 0 },
 ] as const;
 
 const POWERS = [
-  { id: "mono", label: "Monophase", note: "16-32 A · 3,5 a 7 kW", price: 0, weeks: 0 },
-  { id: "tri", label: "Triphase", note: "32 A · jusqu'a 22 kW", price: 4800, weeks: 2 },
+  { id: "mono", label: "Monophasé", note: "16-32 A · 3,5 à 7 kW", price: 0, weeks: 0 },
+  { id: "tri", label: "Triphasé", note: "32 A · jusqu'à 22 kW", price: 4800, weeks: 2 },
 ] as const;
 
 type VehicleId = (typeof VEHICLES)[number]["id"];
@@ -67,34 +64,34 @@ type TabId = "projet" | "atelier" | "coffre";
 
 const OPTIONS = [
   { id: "inox", label: "Plan de travail inox complet", price: 3400 },
-  { id: "froid", label: "Groupe froid renforce", price: 2600 },
-  { id: "auvent", label: "Auvent hydraulique + eclairage", price: 1900 },
+  { id: "froid", label: "Groupe froid renforcé", price: 2600 },
+  { id: "auvent", label: "Auvent hydraulique + éclairage", price: 1900 },
   { id: "covering", label: "Covering sur-mesure", price: 2200 },
 ] as const;
 
 const STEPS = [
-  { id: "plans", label: "Validation des plans", detail: "Plans 3D signes le 12/01", status: "done", date: "12 janv." },
-  { id: "tolerie", label: "Tolerie & structure", detail: "Decoupe laser + soudure chassis", status: "done", date: "28 janv." },
-  { id: "elec", label: "Electricite / Gaz", detail: "Tableau triphase, rampe gaz NF", status: "current", date: "En cours" },
-  { id: "equip", label: "Pose des equipements", detail: "Friteuses, plancha, froid negatif", status: "todo", date: "Prevu 24 mars" },
-  { id: "vasp", label: "Homologation VASP", detail: "Passage DREAL + proces-verbal", status: "todo", date: "Prevu 11 avril" },
-  { id: "livre", label: "Livraison", detail: "Remise des cles a l'atelier", status: "todo", date: "Prevu 25 avril" },
+  { id: "plans", label: "Validation des plans", detail: "Plans 3D signés le 12/01", status: "done", date: "12 janv." },
+  { id: "tolerie", label: "Tôlerie & structure", detail: "Découpe laser + soudure châssis", status: "done", date: "28 janv." },
+  { id: "elec", label: "Électricité / Gaz", detail: "Tableau triphasé, rampe gaz NF", status: "current", date: "En cours" },
+  { id: "equip", label: "Pose des équipements", detail: "Friteuses, plancha, froid négatif", status: "todo", date: "Prévu 24 mars" },
+  { id: "vasp", label: "Homologation VASP", detail: "Passage DREAL + procès-verbal", status: "todo", date: "Prévu 11 avril" },
+  { id: "livre", label: "Livraison", detail: "Remise des clés à l'atelier", status: "todo", date: "Prévu 25 avril" },
 ] as const;
 
 const GALLERY = [
-  { src: "https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?crop=entropy&cs=srgb&fm=jpg&w=800&q=80", caption: "Chassis en peinture" },
+  { src: "https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?crop=entropy&cs=srgb&fm=jpg&w=800&q=80", caption: "Châssis en peinture" },
   { src: "https://images.unsplash.com/photo-1620589125156-fd5028c5e05b?crop=entropy&cs=srgb&fm=jpg&w=800&q=80", caption: "Comptoir de service" },
-  { src: "https://images.pexels.com/photos/5920659/pexels-photo-5920659.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Auvent monte" },
-  { src: "https://images.unsplash.com/photo-1509315811345-672d83ef2fbc?crop=entropy&cs=srgb&fm=jpg&w=800&q=80", caption: "Cuisine equipee" },
-  { src: "https://images.unsplash.com/photo-1570441262582-a2d4b9a916a5?crop=entropy&cs=srgb&fm=jpg&w=800&q=80", caption: "Essai en exterieur" },
-  { src: "https://images.pexels.com/photos/5920681/pexels-photo-5920681.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Controle qualite" },
+  { src: "https://images.pexels.com/photos/5920659/pexels-photo-5920659.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Auvent monté" },
+  { src: "https://images.unsplash.com/photo-1509315811345-672d83ef2fbc?crop=entropy&cs=srgb&fm=jpg&w=800&q=80", caption: "Cuisine équipée" },
+  { src: "https://images.unsplash.com/photo-1570441262582-a2d4b9a916a5?crop=entropy&cs=srgb&fm=jpg&w=800&q=80", caption: "Essai en extérieur" },
+  { src: "https://images.pexels.com/photos/5920681/pexels-photo-5920681.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Contrôle qualité" },
 ];
 
 const DOCUMENTS = [
-  { id: "gaz", name: "Notice Gaz & rampe NF", meta: "PDF · 1,2 Mo · 04/02/2026", kind: "Securite" },
+  { id: "gaz", name: "Notice Gaz & rampe NF", meta: "PDF · 1,2 Mo · 04/02/2026", kind: "Sécurité" },
   { id: "vasp", name: "Certificat VASP (provisoire)", meta: "PDF · 480 Ko · 18/02/2026", kind: "Homologation" },
-  { id: "facture", name: "Facture acompte n°2026-0412", meta: "PDF · 210 Ko · 22/01/2026", kind: "Comptabilite" },
-  { id: "elec", name: "Schema electrique triphase", meta: "PDF · 860 Ko · 11/02/2026", kind: "Technique" },
+  { id: "facture", name: "Facture acompte n°2026-0412", meta: "PDF · 210 Ko · 22/01/2026", kind: "Comptabilité" },
+  { id: "elec", name: "Schéma électrique triphasé", meta: "PDF · 860 Ko · 11/02/2026", kind: "Technique" },
   { id: "garantie", name: "Conditions de garantie 24 mois", meta: "PDF · 320 Ko · 12/01/2026", kind: "Contrat" },
 ];
 
@@ -103,7 +100,7 @@ const EQUIPMENTS = [
   "Friteuse",
   "Plancha / Grill",
   "Rampe gaz",
-  "Tableau electrique",
+  "Tableau électrique",
   "Auvent / Carrosserie",
 ];
 
@@ -114,7 +111,7 @@ const EUR = new Intl.NumberFormat("fr-FR", {
 });
 
 /* ------------------------------------------------------------------ */
-/*  Generation de PDF factice cote client                               */
+/*  Génération de PDF factice côté client                            */
 /* ------------------------------------------------------------------ */
 
 function stripAccents(value: string): string {
@@ -165,7 +162,7 @@ function downloadPdf(title: string, lines: string[], filename: string) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Petits blocs de presentation (hoises hors du rendu)                 */
+/*  Composants de présentation                                        */
 /* ------------------------------------------------------------------ */
 
 function TricolorBadge({ testId }: { testId: string }) {
@@ -263,7 +260,7 @@ function Panel({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Page unique                                                         */
+/*  Page principale                                                  */
 /* ------------------------------------------------------------------ */
 
 export default function Home() {
@@ -314,21 +311,21 @@ export default function Home() {
   const submitStudy = () => {
     const ref = `BCC-${Math.floor(1000 + Math.random() * 9000)}`;
     setStudy({ ref, when: new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long" }) });
-    toast.success("Demande d'etude envoyee", {
-      description: `Reference ${ref} — notre bureau d'etudes vous rappelle sous 48 h.`,
+    toast.success("Demande d'étude envoyée", {
+      description: `Référence ${ref} — notre bureau d'études vous rappelle sous 48 h.`,
     });
   };
 
   const submitTicket = () => {
     if (issue.trim().length < 5) {
-      toast.error("Merci de decrire la panne en quelques mots.");
+      toast.error("Merci de décrire la panne en quelques mots.");
       return;
     }
     const id = `SAV-${Math.floor(100 + Math.random() * 900)}`;
     setTickets((prev) => [{ id, equipment, issue: issue.trim() }, ...prev]);
     setIssue("");
     setSavOpen(false);
-    toast.success("Panne signalee", { description: `Ticket ${id} · ${equipment} — prise en charge sous 24 h ouvrees.` });
+    toast.success("Panne signalée", { description: `Ticket ${id} · ${equipment} — prise en charge sous 24 h ouvrées.` });
   };
 
   const tabs: { id: TabId; label: string; icon: typeof Truck }[] = [
@@ -371,7 +368,7 @@ export default function Home() {
                 Configurateur express
               </h1>
               <p className="mt-1 max-w-md text-sm text-slate-400">
-                Trois questions pour obtenir une fourchette de prix et un delai d'atelier indicatifs.
+                Trois questions pour obtenir une fourchette de prix et un délai d'atelier indicatifs.
               </p>
             </div>
 
@@ -379,22 +376,22 @@ export default function Home() {
               <div className="space-y-5">
                 <ChipGroup
                   testId="config-vehicle"
-                  label="Type de vehicule"
+                  label="Type de véhicule"
                   options={VEHICLES}
                   value={vehicle}
                   onChange={setVehicle}
                 />
                 <ChipGroup
                   testId="config-sector"
-                  label="Secteur d'activite"
+                  label="Secteur d'activité"
                   options={SECTORS}
                   value={sector}
                   onChange={setSector}
                 />
                 <ChipGroup
                   testId="config-power"
-                  label="Besoins electriques"
-                  hint="Puissance estimee"
+                  label="Besoins électriques"
+                  hint="Puissance estimée"
                   options={POWERS}
                   value={power}
                   onChange={setPower}
@@ -447,12 +444,12 @@ export default function Home() {
               <p className="mt-2 font-heading text-3xl font-extrabold tabular-nums tracking-tight" data-testid="estimate-price">
                 {EUR.format(estimate.low)} <span className="text-slate-500">–</span> {EUR.format(estimate.high)}
               </p>
-              <p className="mt-1 text-xs text-slate-400">HT, hors vehicule d'occasion fourni par le client.</p>
+              <p className="mt-1 text-xs text-slate-400">HT, hors véhicule d'occasion fourni par le client.</p>
 
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
                   <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-slate-400">
-                    <CalendarClock className="h-3.5 w-3.5" /> Delai atelier
+                    <CalendarClock className="h-3.5 w-3.5" /> Délai atelier
                   </p>
                   <p className="mt-1 font-heading text-lg font-bold tabular-nums" data-testid="estimate-delay">
                     {estimate.weeks} semaines
@@ -460,7 +457,7 @@ export default function Home() {
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
                   <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-slate-400">
-                    <Zap className="h-3.5 w-3.5" /> Electricite
+                    <Zap className="h-3.5 w-3.5" /> Électricité
                   </p>
                   <p className="mt-1 font-heading text-lg font-bold" data-testid="estimate-power">
                     {estimate.powerLabel}
@@ -485,7 +482,7 @@ export default function Home() {
                   data-testid="company-input"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  placeholder="Ex. Le Camion Dore"
+                  placeholder="Ex. Le Camion Doré"
                   className="border-white/15 bg-white/5 text-slate-100 placeholder:text-slate-500"
                 />
               </div>
@@ -496,7 +493,7 @@ export default function Home() {
                 onClick={submitStudy}
                 className="mt-4 w-full bg-amber-500 font-heading text-base font-bold text-[#1E1E1E] transition-transform duration-200 hover:bg-amber-400 active:scale-[0.98]"
               >
-                Demander une etude detaillee
+                Demander une étude détaillée
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
 
@@ -512,11 +509,11 @@ export default function Home() {
               >
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
                 <div className="text-sm">
-                  <p className="font-semibold text-emerald-200">Demande {study.ref} enregistree le {study.when}</p>
+                  <p className="font-semibold text-emerald-200">Demande {study.ref} enregistrée le {study.when}</p>
                   <p className="mt-1 text-slate-300">
                     {company ? `${company} — ` : ""}
                     {estimate.vehicleLabel} · {estimate.sectorLabel} · {estimate.powerLabel} · {estimate.weeks} semaines.
-                    Un chiffrage ferme vous sera adresse sous 48 h.
+                    Un chiffrage ferme vous sera adressé sous 48 h.
                   </p>
                 </div>
               </div>
@@ -546,7 +543,7 @@ export default function Home() {
                   </p>
                 </div>
                 <Badge className="bg-amber-500 text-[#1E1E1E]" data-testid="progress-stage-badge">
-                  Etape 3/6
+                  Étape 3/6
                 </Badge>
               </div>
               <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-white/10" data-testid="progress-bar">
@@ -555,10 +552,10 @@ export default function Home() {
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="mt-3 text-xs text-slate-400">Livraison previsionnelle : 25 avril 2026</p>
+              <p className="mt-3 text-xs text-slate-400">Livraison prévisionnelle : 25 avril 2026</p>
             </section>
 
-            <Panel title="Etapes de fabrication" icon={<Hammer className="h-4 w-4" />}>
+            <Panel title="Étapes de fabrication" icon={<Hammer className="h-4 w-4" />}>
               <ol className="relative space-y-0" data-testid="timeline">
                 {STEPS.map((step, i) => {
                   const done = step.status === "done";
@@ -666,147 +663,115 @@ export default function Home() {
                         downloadPdf(
                           doc.name,
                           [
-                            `Categorie : ${doc.kind}`,
-                            `Reference dossier : Client #4092 - Camion Burger`,
-                            `Emis le : ${doc.meta}`,
+                            `Catégorie : ${doc.kind}`,
+                            `Référence dossier : Client #4092 - Camion Burger`,
+                            `Émis le : ${doc.meta}`,
                             "",
-                            "Ce document est un exemple de demonstration genere",
+                            "Ce document est un exemple de démonstration généré",
                             "par l'application Beau comme un camion.",
                           ],
                           `${doc.id}-bcc-4092.pdf`,
                         );
-                        toast.success("Document telecharge", { description: doc.name });
+                        toast.success("Document téléchargé", { description: doc.name });
                       }}
                       className="shrink-0 transition-transform duration-200 active:scale-95"
                     >
                       <Download className="h-4 w-4" />
-                      <span className="sr-only">Telecharger {doc.name}</span>
+                      <span className="sr-only">Télécharger {doc.name}</span>
                     </Button>
                   </li>
                 ))}
               </ul>
             </Panel>
 
-            <Panel title="Service apres-vente" icon={<LifeBuoy className="h-4 w-4" />}>
+            <Panel title="Service après-vente" icon={<LifeBuoy className="h-4 w-4" />}>
               <p className="text-sm leading-relaxed text-slate-600">
-                Une panne sur un equipement ? Signalez-la : un technicien vous rappelle sous 24 h ouvrees. Garantie
-                atelier 24 mois pieces et main d'oeuvre.
+                Une panne sur un équipement ? Signalez-la : un technicien vous rappelle sous 24 h ouvrées. Garantie
+                atelier 24 mois pièces et main-d'œuvre.
               </p>
 
-              <Dialog open={savOpen} onOpenChange={setSavOpen}>
-                <DialogTrigger
-                  render={
-                    <Button
-                      size="lg"
-                      data-testid="report-issue-button"
-                      className="mt-4 w-full bg-amber-500 font-heading font-bold text-[#1E1E1E] transition-transform duration-200 hover:bg-amber-400 active:scale-[0.98]"
-                    />
-                  }
-                >
-                  <AlertTriangle className="mr-1 h-4 w-4" />
-                  Signaler une panne
-                </DialogTrigger>
-                <DialogContent className="max-w-md" data-testid="report-issue-dialog">
-                  <DialogHeader>
-                    <DialogTitle className="font-heading">Signaler une panne</DialogTitle>
-                    <DialogDescription>Camion Burger — Client #4092</DialogDescription>
-                  </DialogHeader>
-
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider">Equipement concerne</Label>
-                      <div className="grid grid-cols-2 gap-2" data-testid="issue-equipment-group">
-                        {EQUIPMENTS.map((eq) => (
-                          <button
-                            key={eq}
-                            type="button"
-                            aria-pressed={equipment === eq}
-                            data-testid={`issue-equipment-${eq.toLowerCase().replace(/[^a-z]+/g, "-")}`}
-                            onClick={() => setEquipment(eq)}
-                            className={cn(
-                              "rounded-lg border px-2.5 py-2 text-xs font-medium transition-colors duration-200",
-                              equipment === eq
-                                ? "border-amber-500 bg-amber-50 text-amber-900"
-                                : "border-slate-200 bg-white text-slate-700 hover:border-slate-400",
-                            )}
-                          >
-                            {eq}
-                          </button>
-                        ))}
+              <div className="mt-4">
+                <Dialog open={savOpen} onOpenChange={setSavOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="lg" data-testid="report-issue-button" className="w-full bg-slate-900 text-amber-400 hover:bg-slate-800">
+                      Signaler une panne ou un incident
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-white text-slate-900">
+                    <DialogHeader>
+                      <DialogTitle>Déclarer un incident SAV</DialogTitle>
+                      <DialogDescription>
+                        Renseignez l'équipement concerné et décrivez brièvement le dysfonctionnement constaté.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="equipment">Équipement concerné</Label>
+                        <select
+                          id="equipment"
+                          value={equipment}
+                          onChange={(e) => setEquipment(e.target.value)}
+                          className="w-full rounded-md border border-slate-200 bg-white p-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        >
+                          {EQUIPMENTS.map((eq) => (
+                            <option key={eq} value={eq}>
+                              {eq}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="issue">Description de la panne</Label>
+                        <Textarea
+                          id="issue"
+                          value={issue}
+                          onChange={(e) => setIssue(e.target.value)}
+                          placeholder="Ex : Le groupe froid reste bloqué à +8°C depuis ce matin..."
+                          className="min-h-[100px]"
+                        />
                       </div>
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="issue" className="text-xs font-bold uppercase tracking-wider">
-                        Description
-                      </Label>
-                      <Textarea
-                        id="issue"
-                        data-testid="issue-description-input"
-                        rows={4}
-                        value={issue}
-                        onChange={(e) => setIssue(e.target.value)}
-                        placeholder="Ex. le groupe froid ne descend plus sous 8 degres depuis lundi."
-                      />
-                    </div>
-                  </div>
-
-                  <DialogFooter>
-                    <Button
-                      data-testid="submit-issue-button"
-                      onClick={submitTicket}
-                      className="w-full bg-amber-500 font-bold text-[#1E1E1E] hover:bg-amber-400"
-                    >
-                      Envoyer le signalement
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setSavOpen(false)}>
+                        Annuler
+                      </Button>
+                      <Button onClick={submitTicket} className="bg-amber-500 text-slate-900 hover:bg-amber-400">
+                        Envoyer le ticket
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
 
               {tickets.length > 0 ? (
-                <ul className="mt-4 space-y-2" data-testid="tickets-list">
-                  {tickets.map((t) => (
-                    <li
-                      key={t.id}
-                      className="rounded-xl border border-slate-200 bg-slate-50 p-3 animate-[slide-up_0.3s_ease-out]"
-                      data-testid={`ticket-${t.id}`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="font-heading text-sm font-bold text-slate-900">{t.equipment}</p>
-                        <Badge variant="outline" className="border-amber-500 text-amber-700">
-                          {t.id} · Ouvert
-                        </Badge>
-                      </div>
-                      <p className="mt-1 text-xs leading-relaxed text-slate-600">{t.issue}</p>
-                    </li>
-                  ))}
-                </ul>
+                <div className="mt-4 space-y-2 border-t border-slate-100 pt-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Tickets en cours</p>
+                  <ul className="space-y-2">
+                    {tickets.map((t) => (
+                      <li key={t.id} className="rounded-lg bg-slate-50 p-3 text-xs">
+                        <div className="flex items-center justify-between font-semibold text-slate-800">
+                          <span>{t.id} · {t.equipment}</span>
+                          <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-600">
+                            Prise en charge
+                          </Badge>
+                        </div>
+                        <p className="mt-1 text-slate-600">{t.issue}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ) : null}
             </Panel>
-
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-              <div className="flex items-center gap-2.5 text-sm text-slate-300">
-                <Flame className="h-4 w-4 text-amber-400" />
-                Astreinte technique 7j/7
-              </div>
-              <a
-                href="tel:+33240000000"
-                data-testid="sav-phone-link"
-                className="flex items-center gap-1 text-sm font-semibold text-amber-400 hover:text-amber-300"
-              >
-                02 40 00 00 00 <ChevronRight className="h-4 w-4" />
-              </a>
-            </div>
           </div>
         ) : null}
       </main>
 
-      {/* ---------------- Bottom navigation ---------------- */}
+      {/* ---------------- Navigation inférieure / Onglets ---------------- */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0B1120]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur"
-        data-testid="bottom-nav"
+        className="fixed bottom-0 left-0 right-0 z-30 border-t border-white/10 bg-[#0B1120]/95 backdrop-blur"
+        data-testid="bottom-navigation"
       >
-        <div className="mx-auto flex max-w-2xl">
+        <div className="mx-auto flex max-w-2xl items-center justify-around px-2 py-2">
           {tabs.map((t) => {
             const Icon = t.icon;
             const active = tab === t.id;
@@ -814,19 +779,15 @@ export default function Home() {
               <button
                 key={t.id}
                 type="button"
-                data-testid={`nav-tab-${t.id}`}
-                aria-current={active ? "page" : undefined}
+                data-testid={`tab-button-${t.id}`}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "relative flex flex-1 flex-col items-center gap-1 py-2.5 transition-colors duration-200",
-                  active ? "text-amber-400" : "text-slate-500 hover:text-slate-300",
+                  "flex flex-1 flex-col items-center gap-1 rounded-xl py-2 transition-colors",
+                  active ? "text-amber-400 font-semibold" : "text-slate-400 hover:text-slate-200",
                 )}
               >
-                {active ? (
-                  <span className="absolute inset-x-6 top-0 h-0.5 rounded-full bg-amber-400 animate-[rivet_0.5s_ease-out]" />
-                ) : null}
-                <Icon className="h-5 w-5" strokeWidth={active ? 2.6 : 2} />
-                <span className="text-[11px] font-semibold tracking-tight">{t.label}</span>
+                <Icon className="h-5 w-5" />
+                <span className="text-[11px]">{t.label}</span>
               </button>
             );
           })}
@@ -835,3 +796,5 @@ export default function Home() {
     </div>
   );
 }
+
+```
