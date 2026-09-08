@@ -529,7 +529,7 @@ export default function Home() {
                 <CardContent className="p-6 bg-white space-y-4">
                   <div className="pt-2">
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                      <DialogTrigger asChild>
+                      <DialogTrigger >
                         <Button className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 text-base shadow-md">
                           Valider la qualification & Devis
                           <ArrowRight className="w-5 h-5 ml-2" />
