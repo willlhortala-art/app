@@ -1,15 +1,10 @@
 import { useMemo, useState } from "react";
 import {
   ArrowRight,
-  Check,
   Gauge,
-  LifeBuoy,
   Loader2,
   Truck,
   AlertTriangle,
-  PhoneCall,
-  Flame,
-  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -19,7 +14,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -200,7 +194,7 @@ export default function Home() {
       const eq = EQUIPMENTS.find((e) => e.id === id);
       return sum + (eq ? eq.weightKg : 0);
     }, 0);
-    return selectedVehicle.emptyWeightKg + equipmentsWeight + 150; // marge réserves
+    return selectedVehicle.emptyWeightKg + equipmentsWeight + 150;
   }, [selectedVehicle, selectedEquipmentIds]);
 
   const totalPowerKw = useMemo(() => {
@@ -213,7 +207,6 @@ export default function Home() {
 
   const isOverweight = totalWeightKg > selectedVehicle.ptacKg;
 
-  // --- ÉTAPE 4 : BILAN DE QUALIFICATION DYNAMIQUE (VERDICT) ---
   const dynamicQualification = useMemo(() => {
     const isVehicleEmpty = selectedVehicle.id === 'remorque-vide';
     const isHeavyElectric = totalPowerKw > 7.4 || selectedActivity.defaultAlert === 'rouge' || !hasElectricCertainty;
@@ -276,7 +269,6 @@ export default function Home() {
           
           <div className="lg:col-span-8 space-y-8">
 
-            {/* ÉTAPE 1 : LE PROJET & L'ACTIVITÉ (LE "POURQUOI") */}
             <Card className="shadow-md border-slate-200">
               <CardHeader>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -311,7 +303,6 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {/* ÉTAPE 2 : LE GABARIT & LE VÉHICULE (LE "CONTENANT") */}
             <Card className="shadow-md border-slate-200">
               <CardHeader>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -349,7 +340,6 @@ export default function Home() {
                   })}
                 </div>
 
-                {/* Indicateurs visuels poids & permis */}
                 <div className={`p-3 rounded-lg border text-xs flex items-center justify-between ${isOverweight ? "bg-red-50 border-red-300 text-red-800" : "bg-slate-50 border-slate-200 text-slate-700"}`}>
                   <span className="font-medium flex items-center gap-2">
                     {isOverweight && <AlertTriangle className="w-4 h-4 text-red-600" />}
@@ -360,7 +350,6 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {/* ÉTAPE 3 : BILAN D'ÉNERGIE & DES FLUX (CŒUR TECHNIQUE) */}
             <Card className="shadow-md border-slate-200">
               <CardHeader>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -371,7 +360,6 @@ export default function Home() {
               </CardHeader>
               <CardContent className="space-y-6">
                 
-                {/* Bloc 1 : Équipements & Watts */}
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Cuisson / Froid / Hygiène (Watts & Énergie)</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -398,7 +386,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Bloc 2 : Le piège de l'emplacement (Question bloquante) */}
                 <div className="p-4 rounded-xl bg-red-50 border border-red-200 space-y-3">
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
@@ -433,7 +420,6 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {/* ÉTAPE 4 : BILAN DE QUALIFICATION DYNAMIQUE (LE VERDICT) */}
             <Card className="bg-slate-900 text-white border-none shadow-md">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-2">
@@ -457,7 +443,6 @@ export default function Home() {
 
           </div>
 
-          {/* COLONNE DE DROITE : RÉCAPITULATIF & VALIDATION */}
           <div className="lg:col-span-4">
             <div className="sticky top-6 space-y-6">
               <Card className="shadow-lg border-amber-500/30 overflow-hidden">
