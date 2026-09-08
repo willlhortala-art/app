@@ -1,0 +1,239 @@
+export interface VehicleModel {
+  id: string;
+  name: string;
+  type: 'camion' | 'remorque';
+  category: 'Standard' | 'Vintage' | 'Sur-mesure';
+  description: string;
+  basePrice: number;
+  emptyWeightKg: number;
+  ptacKg: number;
+  lengthMeters: number;
+  widthMeters: number;
+  licenseRequired: 'Permis B' | 'Permis BE';
+  maxElectricalKw: number;
+}
+
+export interface Equipment {
+  id: string;
+  name: string;
+  category: 'cuisson' | 'froid' | 'hygiene' | 'energie' | 'amenagement';
+  energyType: 'electric' | 'gas' | 'none';
+  powerWatts: number;
+  weightKg: number;
+  price: number;
+  description: string;
+}
+
+export const VEHICLES: VehicleModel[] = [
+  {
+    id: 'remorque-300',
+    name: 'Remorque Foodtruck 3.00m Compact',
+    type: 'remorque',
+    category: 'Standard',
+    description: 'Format idéal pour 1 à 2 personnes. Très maniable, parfaite pour le snacking, la crêperie ou le café mobile.',
+    basePrice: 24880,
+    emptyWeightKg: 850,
+    ptacKg: 1350,
+    lengthMeters: 3.0,
+    widthMeters: 2.0,
+    licenseRequired: 'Permis B',
+    maxElectricalKw: 9.0,
+  },
+  {
+    id: 'remorque-360',
+    name: 'Remorque Foodtruck 3.60m Polyvalente',
+    type: 'remorque',
+    category: 'Standard',
+    description: 'Le best-seller remorque. Offre l\'espace nécessaire pour installer un pôle cuisson complet et un poste de froid.',
+    basePrice: 27025,
+    emptyWeightKg: 1050,
+    ptacKg: 1600,
+    lengthMeters: 3.6,
+    widthMeters: 2.1,
+    licenseRequired: 'Permis B',
+    maxElectricalKw: 12.0,
+  },
+  {
+    id: 'remorque-420',
+    name: 'Remorque Foodtruck 4.20m Grand Volume',
+    type: 'remorque',
+    category: 'Standard',
+    description: 'Conçue pour les équipes de 2 à 4 personnes et les gros débits sur événements et festivals.',
+    basePrice: 30810,
+    emptyWeightKg: 1300,
+    ptacKg: 2000,
+    lengthMeters: 4.2,
+    widthMeters: 2.1,
+    licenseRequired: 'Permis BE',
+    maxElectricalKw: 15.0,
+  },
+  {
+    id: 'remorque-520',
+    name: 'Remorque Foodtruck 5.20m Cuisine XXL',
+    type: 'remorque',
+    category: 'Standard',
+    description: 'Espace traiteur / restaurant ambulant complet. Permet de séparer les zones de préparation et de cuisson.',
+    basePrice: 34200,
+    emptyWeightKg: 1600,
+    ptacKg: 2500,
+    lengthMeters: 5.2,
+    widthMeters: 2.2,
+    licenseRequired: 'Permis BE',
+    maxElectricalKw: 22.0,
+  },
+  {
+    id: 'remorque-vintage-300',
+    name: 'Remorque Vintage Retro 3.00m (Look HY)',
+    type: 'remorque',
+    category: 'Vintage',
+    description: 'Design rétro emblématique inspiré des véhicules anciens, avec tout le confort et l\'hygiène moderne.',
+    basePrice: 32070,
+    emptyWeightKg: 950,
+    ptacKg: 1500,
+    lengthMeters: 3.0,
+    widthMeters: 2.0,
+    licenseRequired: 'Permis B',
+    maxElectricalKw: 9.0,
+  },
+  {
+    id: 'camion-370',
+    name: 'Camion Foodtruck Master / Jumper 3.70m',
+    type: 'camion',
+    category: 'Standard',
+    description: 'Véhicule utilitaire neuf avec cellule magasin sur-mesure plancher bas. Permis B standard.',
+    basePrice: 48000,
+    emptyWeightKg: 2600,
+    ptacKg: 3500,
+    lengthMeters: 3.7,
+    widthMeters: 2.2,
+    licenseRequired: 'Permis B',
+    maxElectricalKw: 15.0,
+  },
+  {
+    id: 'camion-pizza-rotisserie',
+    name: 'Camion Pizza / Rôtisserie Cellule Renforcée',
+    type: 'camion',
+    category: 'Sur-mesure',
+    description: 'Châssis et plancher renforcés pour supporter un four à bois/gaz lourd ou une rôtisserie grand débit.',
+    basePrice: 54000,
+    emptyWeightKg: 2750,
+    ptacKg: 3500,
+    lengthMeters: 4.0,
+    widthMeters: 2.2,
+    licenseRequired: 'Permis B',
+    maxElectricalKw: 18.0,
+  },
+];
+
+export const EQUIPMENTS: Equipment[] = [
+  {
+    id: 'fryer-gas-2x16',
+    name: 'Friteuse double 2x16L Gaz Inox',
+    category: 'cuisson',
+    energyType: 'gas',
+    powerWatts: 0,
+    weightKg: 65,
+    price: 2450,
+    description: 'Rendement élevé 30kg/h, robinets de vidange frontal.',
+  },
+  {
+    id: 'fryer-elec-2x12',
+    name: 'Friteuse double 2x12L Électrique (Triphasé)',
+    category: 'cuisson',
+    energyType: 'electric',
+    powerWatts: 12000,
+    weightKg: 45,
+    price: 1980,
+    description: 'Chauffe ultra-rapide. Nécessite une alimentation triphasée 400V.',
+  },
+  {
+    id: 'plancha-chrome-gas',
+    name: 'Plaque à snacker Chrome Gaz 80cm',
+    category: 'cuisson',
+    energyType: 'gas',
+    powerWatts: 0,
+    weightKg: 55,
+    price: 1890,
+    description: 'Plaque miroir 12mm sans transfert de goût. Nettoyage au glaçage.',
+  },
+  {
+    id: 'four-pizza-gas',
+    name: 'Four à Pizza Professionnel Gaz (4 pizzas 33cm)',
+    category: 'cuisson',
+    energyType: 'gas',
+    powerWatts: 150,
+    weightKg: 115,
+    price: 3600,
+    description: 'Sole en pierre réfractaire. Température jusqu\'à 450°C.',
+  },
+  {
+    id: 'fridge-table-3p',
+    name: 'Table Réfrigérée Inox 3 Portes (+2°C/+8°C)',
+    category: 'froid',
+    energyType: 'electric',
+    powerWatts: 350,
+    weightKg: 125,
+    price: 2800,
+    description: 'Capacité 410L avec plan de travail inox brossé.',
+  },
+  {
+    id: 'vitrine-boisson',
+    name: 'Vitrine Réfrigérée Boissons 350L (Porte vitrée)',
+    category: 'froid',
+    energyType: 'electric',
+    powerWatts: 280,
+    weightKg: 78,
+    price: 1450,
+    description: 'Éclairage LED vertical pour mise en valeur côté client.',
+  },
+  {
+    id: 'saladette-prep',
+    name: 'Saladette de Préparation Burger/Sandwich (GN 1/3)',
+    category: 'froid',
+    energyType: 'electric',
+    powerWatts: 250,
+    weightKg: 42,
+    price: 1120,
+    description: 'Maintien au frais des ingrédients avec couvercle rabattable.',
+  },
+  {
+    id: 'pack-gas-4-bot',
+    name: 'Caisson & Coffre Gaz Étanche VASP (4 Bouteilles)',
+    category: 'energie',
+    energyType: 'gas',
+    powerWatts: 0,
+    weightKg: 40,
+    price: 1650,
+    description: 'Conforme aux normes DDPP/Qualigaz. Inverseur automatique inclus.',
+  },
+  {
+    id: 'groupe-inverter-7kw',
+    name: 'Groupe Électrogène Insonorisé 7kW Inverter (Essence)',
+    category: 'energie',
+    energyType: 'none',
+    powerWatts: 0,
+    weightKg: 95,
+    price: 3200,
+    description: 'Permet de faire tourner le froid et l\'éclairage en autonomie complète.',
+  },
+  {
+    id: 'pack-hygiene-vasp',
+    name: 'Pack Lave-mains Autonome Commande Au Genou',
+    category: 'hygiene',
+    energyType: 'electric',
+    powerWatts: 1500,
+    weightKg: 25,
+    price: 1150,
+    description: 'Obligatoire VASP/HACCP. Pompe 12V, réserve eau propre/usée 20L + chauffe-eau.',
+  },
+  {
+    id: 'covering-total',
+    name: 'Total Covering Graphique & Personnalisation Maquette 3D',
+    category: 'amenagement',
+    energyType: 'none',
+    powerWatts: 0,
+    weightKg: 10,
+    price: 2900,
+    description: 'Impression HD vinyle coulé pelliculé anti-UV garanti 5 ans.',
+  }
+];
