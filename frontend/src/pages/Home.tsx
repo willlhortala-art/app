@@ -1,17 +1,14 @@
 import { useMemo, useState } from "react";
 import {
   ArrowRight,
-  CalendarClock,
   Check,
   CheckCircle2,
-  FileText,
   Gauge,
   Hammer,
   LifeBuoy,
   Loader2,
   ShieldCheck,
   Truck,
-  Wrench,
   Zap,
   AlertTriangle,
   BatteryCharging,
@@ -53,7 +50,7 @@ export default function Home() {
 
   // --- Calculs Dynamiques (Prix, Poids, Énergie) ---
   const totalPrice = useMemo(() => {
-    const optionsSum = selectedEquipmentIds.reduce((sum, eqId) => {
+    const optionsSum = selectedEquipmentIds.reduce((sum: number, eqId: string) => {
       const eq = EQUIPMENTS.find((e) => e.id === eqId);
       return sum + (eq ? eq.price : 0);
     }, 0);
@@ -61,7 +58,7 @@ export default function Home() {
   }, [selectedVehicle, selectedEquipmentIds]);
 
   const totalWeightKg = useMemo(() => {
-    const equipmentsWeight = selectedEquipmentIds.reduce((sum, id) => {
+    const equipmentsWeight = selectedEquipmentIds.reduce((sum: number, id: string) => {
       const eq = EQUIPMENTS.find((e) => e.id === id);
       return sum + (eq ? eq.weightKg : 0);
     }, 0);
@@ -70,7 +67,7 @@ export default function Home() {
   }, [selectedVehicle, selectedEquipmentIds]);
 
   const totalPowerKw = useMemo(() => {
-    const watts = selectedEquipmentIds.reduce((sum, id) => {
+    const watts = selectedEquipmentIds.reduce((sum: number, id: string) => {
       const eq = EQUIPMENTS.find((e) => e.id === id);
       return sum + (eq ? eq.powerWatts : 0);
     }, 0);
@@ -157,7 +154,7 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {VEHICLES.map((vehicle) => {
+                {VEHICLES.map((vehicle: VehicleModel) => {
                   const isSelected = selectedVehicle.id === vehicle.id;
                   return (
                     <div
