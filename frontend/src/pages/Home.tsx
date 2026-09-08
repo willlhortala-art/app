@@ -2,16 +2,11 @@ import { useMemo, useState } from "react";
 import {
   ArrowRight,
   Check,
-  CheckCircle2,
   Gauge,
-  Hammer,
   LifeBuoy,
   Loader2,
-  ShieldCheck,
   Truck,
-  Zap,
   AlertTriangle,
-  BatteryCharging,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -286,7 +281,6 @@ export default function Home() {
     return watts / 1000;
   }, [selectedEquipmentIds]);
 
-  // Qualification dynamique selon la matrice commerciale
   const dynamicQualification = useMemo(() => {
     const hasElectricCooking = selectedEquipmentIds.some(id => {
       const eq = EQUIPMENTS.find(e => e.id === id);
