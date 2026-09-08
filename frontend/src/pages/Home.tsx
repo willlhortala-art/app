@@ -458,7 +458,7 @@ export default function Home() {
 
                 <CardContent className="p-6 bg-white space-y-4">
                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild={false}>
+                    <DialogTrigger>
                       <Button className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 text-base shadow-md cursor-pointer">
                         Valider l'étude & Transmettre
                         <ArrowRight className="w-5 h-5 ml-2" />
