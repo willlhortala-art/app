@@ -4,14 +4,11 @@ import {
   CalendarClock,
   Check,
   CheckCircle2,
-  Download,
   FileText,
   Gauge,
   Hammer,
-  ImageIcon,
   LifeBuoy,
   Loader2,
-  Package,
   ShieldCheck,
   Truck,
   Wrench,
@@ -458,7 +455,7 @@ export default function Home() {
 
                   <div className="pt-4 border-t border-slate-100">
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                      <DialogTrigger asChild>
+                      <DialogTrigger>
                         <Button className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-6 text-base shadow-md">
                           Recevoir mon Devis Gratuit
                           <ArrowRight className="w-5 h-5 ml-2" />
