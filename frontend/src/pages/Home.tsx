@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // --- DONNÉES CATALOGUE ---
 const VEHICLES = [
@@ -14,7 +14,7 @@ const EQUIPMENTS = [
   { id: 'friteuse-gaz', name: 'Friteuse Gaz 2x10L', weight: 55, powerWatts: 200, price: 1800 },
   { id: 'frigo-3p', name: 'Tour Réfrigérée 3 Portes', weight: 120, powerWatts: 450, price: 2400 },
   { id: 'plancha-gaz', name: 'Plancha Gaz Inox', weight: 35, powerWatts: 0, price: 950 },
-  { id: "hotte-ext", name: "Hotte d'Extraction Pro", weight: 40, powerWatts: 600, price: 1500 },
+  { id: 'hotte-ext', name: "Hotte d'Extraction Pro", weight: 40, powerWatts: 600, price: 1500 },
 ];
 
 export default function Home() {
@@ -44,13 +44,13 @@ export default function Home() {
 
   const remainingPayload = selectedVehicle.maxPayload - equipmentWeight;
   const totalPrice = selectedVehicle.basePrice + equipmentPrice;
-  const isOverweight = remainingPayload < 100; // Marge 100kg
-  const requiresTriphase = totalWatts > 7000;  // Seuil 7kW
+  const isOverweight = remainingPayload < 100;
+  const requiresTriphase = totalWatts > 7000;
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif', backgroundColor: '#f4f5f7' }}>
       
-      {/* 📍 BANDE DÉROULANTE / SIDEBAR GAUCHE : SÉLECTION VÉHICULE */}
+      {/* 📍 BANDE DÉROULANTE / SIDEBAR GAUCHE */}
       <aside style={{ width: '280px', backgroundColor: '#1e293b', color: '#fff', padding: '24px 16px', flexShrink: 0 }}>
         <h2 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '20px', color: '#38bdf8' }}>
           🚚 Beau Comme Un Camion
@@ -82,7 +82,6 @@ export default function Home() {
           </optgroup>
         </select>
 
-        {/* Dynamic Details Sidebar */}
         <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '8px', fontSize: '0.85rem', color: '#cbd5e1' }}>
           <p style={{ margin: '0 0 8px 0' }}><strong>Prix de base :</strong> {selectedVehicle.basePrice.toLocaleString()} € HT</p>
           <p style={{ margin: '0 0 8px 0' }}><strong>Charge Utile Max :</strong> {selectedVehicle.maxPayload} kg</p>
@@ -91,10 +90,10 @@ export default function Home() {
       </aside>
 
       {/* 📍 ZONE PRINCIPALE DROITE */}
-      <main style={{ flex: 1, padding: '32px', display: 'flex', flexDirection: 'column', justifySpace: 'between', overflowY: 'auto' }}>
+      <main style={{ flex: 1, padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflowY: 'auto' }}>
         <div>
           
-          {/* 📍 HAUT DE PAGE : DASHBOARD INDICATEURS DE CALCUL EN DIRECT */}
+          {/* HAUT DE PAGE : CALCULS EN DIRECT */}
           <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
             
             <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
@@ -120,7 +119,7 @@ export default function Home() {
 
           </section>
 
-          {/* ALERTES ERGONOMIQUES */}
+          {/* ALERTES */}
           {isOverweight && (
             <div style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #ef4444', padding: '16px', borderRadius: '8px', marginBottom: '24px', color: '#991b1b' }}>
               <strong>⚠️ Alerte Surcharge PTAC :</strong> La charge utile restante est insuffisante ({remainingPayload} kg). Basculez vers des équipements gaz ou un châssis remorque.
@@ -133,7 +132,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* 📍 MILIEU DE PAGE : CHOIX DU MATÉRIEL CHR */}
+          {/* MILIEU DE PAGE : MATÉRIEL CHR */}
           <section style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '32px' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', margin: '0 0 16px 0', color: '#1e293b' }}>
               Équipements & Aménagements Cuisine
@@ -179,7 +178,7 @@ export default function Home() {
 
         </div>
 
-        {/* 📍 BAS DE PAGE : RGPD ET CONFORMITÉ */}
+        {/* BAS DE PAGE : RGPD */}
         <footer style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginTop: 'auto' }}>
           <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', color: '#64748b', cursor: 'pointer' }}>
             <input 
