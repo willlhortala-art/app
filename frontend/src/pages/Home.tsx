@@ -7,7 +7,7 @@ export default function Home() {
   const [usesGas, setUsesGas] = useState<boolean>(true);
   
   // CALCULATEUR DE PERMIS
-  const [towVehiclePtra, setTowVehiclePtra] = useState<number>(3000); // PTAC du véhicule tracteur
+  const [towVehiclePtra, setTowVehiclePtra] = useState<number>(3000); 
   const [consentRGPD, setConsentRGPD] = useState<boolean>(false);
 
   const selectedVehicle = VEHICLES.find(v => v.id === selectedVehicleId) || VEHICLES[0];
@@ -21,7 +21,7 @@ export default function Home() {
   const remainingPayload = selectedVehicle.maxPayload - totalEquipWeight;
   const totalPrice = selectedVehicle.basePrice + equipmentPrice + (usesGas ? 850 : 0);
   
-  // LOGIQUE DE PERMIS (Masse totale cumulée)
+  // LOGIQUE DE PERMIS
   const totalCumulatedWeight = towVehiclePtra + selectedVehicle.ptac;
   let requiredLicense = 'Permis B';
   if (totalCumulatedWeight > 3500 && totalCumulatedWeight <= 4250) {
@@ -92,8 +92,6 @@ export default function Home() {
 
           {/* RECAPITULATIF TECHNIQUE */}
           <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0', height: 'fit-content' }}>
-            <img src={selectedVehicle.imageUrl} alt={selectedVehicle.name} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '12px', marginBottom: '16px' }} />
-            
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 12px 0' }}>{selectedVehicle.name}</h2>
             <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>{selectedVehicle.description}</p>
 
@@ -112,7 +110,7 @@ export default function Home() {
 
             {remainingPayload < 0 && (
               <div style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #ef4444', padding: '12px', fontSize: '0.8rem', color: '#991b1b', marginBottom: '16px' }}>
-                ⚠️ <strong>Surcharge détectée :</strong> Vous dépassez le PTAC autorisé de {Math.abs(remainingPayload)} kg. Retirez des équipements ou choisissez un modèle double essieu supérieur.
+                ⚠️ <strong>Surcharge détectée :</strong> Vous dépassez le PTAC autorisé de {Math.abs(remainingPayload)} kg.
               </div>
             )}
 
@@ -133,11 +131,11 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SIMULATEUR DE PERMIS DE CONDUIRE */}
+        {/* SIMULATEUR DE PERMIS */}
         <section id="permis" style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '40px' }}>
           <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '8px' }}>Simulateur de Permis de Conduire requis</h3>
           <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>
-            Renseignez le PTAC (champ F.2) de la carte grise de votre véhicule tracteur pour vérifier le permis nécessaire avec la remorque sélectionnée ({selectedVehicle.ptac} kg PTAC).
+            Renseignez le PTAC (champ F.2) de votre véhicule tracteur pour vérifier le permis nécessaire avec la remorque sélectionnée ({selectedVehicle.ptac} kg PTAC).
           </p>
 
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
@@ -158,19 +156,22 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CATALOGUE COMPLET (LISTING INTEGRAL) */}
+        {/* CATALOGUE COMPLET INTÉGRÉ */}
         <section id="catalogue">
           <h2 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '20px' }}>Catalogue Intégral Remorques ({VEHICLES.length} modèles)</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
             {VEHICLES.map(item => (
               <div key={item.id} style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
-                  <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '8px', marginBottom: '12px' }} />
                   <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800 }}>
                     {item.metierTarget}
                   </span>
                   <h4 style={{ fontSize: '1rem', fontWeight: 800, margin: '8px 0 4px 0' }}>{item.name}</h4>
                   <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '12px' }}>{item.description}</p>
+                  <div style={{ fontSize: '0.75rem', color: '#475569', marginBottom: '12px' }}>
+                    <div>Dimensions : {item.dimensions}</div>
+                    <div>PTAC : {item.ptac} kg | À vide : {item.weightEmpty} kg</div>
+                  </div>
                 </div>
                 <div>
                   <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>{item.basePrice.toLocaleString()} € HT</div>
