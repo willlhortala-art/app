@@ -84,7 +84,7 @@ export default function Home() {
     <div style={{ minHeight: '100vh', backgroundColor: '#eef7fc', fontFamily: '"Comfortaa", "Segoe UI", sans-serif', color: '#0f172a' }}>
       
       {/* 📍 NAV BAR */}
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 40px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', sticky: 'top', zIndex: 100 }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 40px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ backgroundColor: '#1d4ed8', color: '#fff', padding: '8px 12px', borderRadius: '50%', fontWeight: 'bold', fontSize: '1rem' }}>
             BCUC
@@ -244,7 +244,7 @@ export default function Home() {
           </label>
         </div>
 
-        {/* 📍 NOUVEAU ESPACE : ESPACE PANEL / CATALOGUE COMPLET */}
+        {/* 📍 ESPACE PANEL / CATALOGUE COMPLET */}
         <div id="catalogue" style={{ marginTop: '60px', borderTop: '2px dashed #cbd5e1', paddingTop: '40px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
             <div>
@@ -291,7 +291,7 @@ export default function Home() {
                   padding: '24px',
                   display: 'flex',
                   flexDirection: 'column',
-                  justify: 'space-between',
+                  justifyContent: 'space-between',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
                 }}
               >
