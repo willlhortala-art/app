@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { VEHICLES, EQUIPMENTS, VehicleModel } from './data';
+import { VEHICLES, EQUIPMENTS, type VehicleModel } from './data';
 
 export default function Home() {
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>(VEHICLES[0].id);
