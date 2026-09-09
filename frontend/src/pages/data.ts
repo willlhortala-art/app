@@ -1,5 +1,5 @@
-export interface VehicleModel {
-  id: string;
+import { VEHICLES, EQUIPMENTS } from './data';
+id: string;
   name: string;
   category: 'Remorques' | 'Camions' | 'Conteneurs';
   weightEmpty: number; // Poids à vide en kg
