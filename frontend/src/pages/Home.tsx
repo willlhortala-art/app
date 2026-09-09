@@ -1,369 +1,207 @@
 import { useState } from 'react';
-
-// --- CATALOGUE COMPLET BEAU COMME UN CAMION (PANEL GLOBAL) ---
-interface VehicleModel {
-  id: string;
-  name: string;
-  category: 'Camions' | 'Remorques' | 'Conteneurs';
-  weight: number;
-  maxPayload: number;
-  basePrice: number;
-  description: string;
-  dimensions: string;
-}
-
-const VEHICLES: VehicleModel[] = [
-  // Camions
-  { id: 'burger', name: 'Camion Food Truck Burger', category: 'Camions', weight: 2800, maxPayload: 700, basePrice: 67920, description: 'Aménagement lourd avec poste de cuisson renforcé.', dimensions: '4,20m x 2,10m' },
-  { id: 'type-h-glacier', name: 'Camion Food Truck Type H Glacier', category: 'Camions', weight: 2900, maxPayload: 600, basePrice: 82630, description: 'Look rétro Vintage type Citroën H, idéal glaces et évènementiel.', dimensions: '4,00m x 2,10m' },
-  { id: 'creperie', name: 'Camion Food Truck Crêperie', category: 'Camions', weight: 2750, maxPayload: 750, basePrice: 69590, description: 'Optimisé pour le flux rapide, double crêpière et vitrines.', dimensions: '4,20m x 2,10m' },
-  { id: 'traiteur', name: 'Camion Food Truck Traiteur', category: 'Camions', weight: 2800, maxPayload: 700, basePrice: 69100, description: 'Espace de préparation large, capacité de froid étendue.', dimensions: '4,50m x 2,10m' },
-  { id: 'empanadas', name: 'Camion Food Truck Empanadas', category: 'Camions', weight: 2700, maxPayload: 800, basePrice: 66214, description: 'Comptoir de maintien au chaud et vitrine d exposition.', dimensions: '4,00m x 2,10m' },
-  { id: 'pates', name: 'Camion Food Truck Pâtes', category: 'Camions', weight: 2750, maxPayload: 750, basePrice: 65800, description: 'Poste cuiseurs à pâtes rapide et rangement compartimenté.', dimensions: '4,20m x 2,10m' },
-  { id: 'asiatique', name: 'Camion Food Truck Asiatique', category: 'Camions', weight: 2800, maxPayload: 700, basePrice: 66570, description: 'Installation woks sur puissance gaz spécifique.', dimensions: '4,20m x 2,10m' },
-  { id: 'vitrine-3m', name: 'Camion Tournées Vitrine 3,00m', category: 'Camions', weight: 2600, maxPayload: 900, basePrice: 60600, description: 'Châssis compact pour tournées quotidiennes et marchés.', dimensions: '3,00m x 2,10m' },
-  { id: 'sandwicherie', name: 'Camion Food Truck Sandwicherie', category: 'Camions', weight: 2700, maxPayload: 800, basePrice: 69590, description: 'Ligne de préparation froide et vitrines réfrigérées.', dimensions: '4,20m x 2,10m' },
-  { id: 'kebab', name: 'Camion Food Truck Kebab', category: 'Camions', weight: 2850, maxPayload: 650, basePrice: 66700, description: 'Broches kebab, extraction renforcée et planchas.', dimensions: '4,20m x 2,10m' },
-  { id: 'type-h-snack', name: 'Camion Food Truck Type H Snack', category: 'Camions', weight: 2950, maxPayload: 550, basePrice: 84050, description: 'Finition Rétro haut de gamme tout équipement.', dimensions: '4,20m x 2,10m' },
-
-  // Remorques
-  { id: 'remorque-rotisserie', name: 'Remorque Rôtisserie Pro', category: 'Remorques', weight: 1400, maxPayload: 1600, basePrice: 32500, description: 'Châssis double essieu pour rôtisseries lourdes à gaz.', dimensions: '4,00m x 2,00m' },
-  { id: 'remorque-snack-350', name: 'Remorque Snack & Pizza 3,5m', category: 'Remorques', weight: 1100, maxPayload: 1400, basePrice: 28900, description: 'Format léger et maniable pour petites emplacements.', dimensions: '3,50m x 2,00m' },
-  { id: 'remorque-event', name: 'Remorque Évènementielle Panorama', category: 'Remorques', weight: 1250, maxPayload: 1250, basePrice: 34100, description: 'Ouverture bilatérale pour bar mobile ou distribution.', dimensions: '4,50m x 2,10m' },
-
-  // Conteneurs
-  { id: 'conteneur-10ft', name: 'Kiosque Conteneur 10 Pieds', category: 'Conteneurs', weight: 1800, maxPayload: 2200, basePrice: 24500, description: 'Module fixe court terme / long terme pour terrasses.', dimensions: '3,00m x 2,44m' },
-  { id: 'conteneur-20ft', name: 'Food Store Conteneur 20 Pieds', category: 'Conteneurs', weight: 3100, maxPayload: 3900, basePrice: 38900, description: 'Cuisine complète fixe sur conteneur maritime aménagé VASP.', dimensions: '6,00m x 2,44m' }
-];
-
-const EQUIPMENTS = [
-  { id: 'friteuse-elec', name: 'Friteuse Électrique 2x8L', weight: 45, powerWatts: 6000, price: 1200 },
-  { id: 'friteuse-gaz', name: 'Friteuse Gaz 2x10L', weight: 55, powerWatts: 200, price: 1800 },
-  { id: 'frigo-3p', name: 'Tour Réfrigérée 3 Portes', weight: 120, powerWatts: 450, price: 2400 },
-  { id: 'plancha-gaz', name: 'Plancha / Grill Gaz Inox', weight: 35, powerWatts: 0, price: 950 },
-  { id: 'hotte-ext', name: "Hotte d'Extraction Pro", weight: 40, powerWatts: 600, price: 1500 },
-  { id: 'kit-eau', name: 'Point d’eau lave-main hygiène', weight: 25, powerWatts: 150, price: 650 },
-];
+import { VEHICLES, EQUIPMENTS, VehicleModel } from './data';
 
 export default function Home() {
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>(VEHICLES[0].id);
   const [selectedEquipments, setSelectedEquipments] = useState<string[]>(['kit-eau']);
   const [usesGas, setUsesGas] = useState<boolean>(true);
+  
+  // CALCULATEUR DE PERMIS
+  const [towVehiclePtra, setTowVehiclePtra] = useState<number>(3000); // PTAC du véhicule tracteur
   const [consentRGPD, setConsentRGPD] = useState<boolean>(false);
-  const [activeCategory, setActiveCategory] = useState<'Tous' | 'Camions' | 'Remorques' | 'Conteneurs'>('Tous');
 
   const selectedVehicle = VEHICLES.find(v => v.id === selectedVehicleId) || VEHICLES[0];
-
-  const toggleEquipment = (id: string) => {
-    setSelectedEquipments(prev =>
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
-  };
-
   const currentEquipments = EQUIPMENTS.filter(e => selectedEquipments.includes(e.id));
-  
-  let equipmentWeight = currentEquipments.reduce((sum, item) => sum + item.weight, 0);
+
+  // CALCULS DYNAMIQUES
+  let totalEquipWeight = currentEquipments.reduce((sum, item) => sum + item.weight, 0) + (usesGas ? 60 : 0);
   let totalWatts = currentEquipments.reduce((sum, item) => sum + item.powerWatts, 0);
   let equipmentPrice = currentEquipments.reduce((sum, item) => sum + item.price, 0);
 
-  if (usesGas) {
-    equipmentWeight += 60;
+  const remainingPayload = selectedVehicle.maxPayload - totalEquipWeight;
+  const totalPrice = selectedVehicle.basePrice + equipmentPrice + (usesGas ? 850 : 0);
+  
+  // LOGIQUE DE PERMIS (Masse totale cumulée)
+  const totalCumulatedWeight = towVehiclePtra + selectedVehicle.ptac;
+  let requiredLicense = 'Permis B';
+  if (totalCumulatedWeight > 3500 && totalCumulatedWeight <= 4250) {
+    requiredLicense = 'Formation B96 (7h)';
+  } else if (totalCumulatedWeight > 4250) {
+    requiredLicense = 'Permis BE obligatoire';
   }
 
-  const remainingPayload = selectedVehicle.maxPayload - equipmentWeight;
-  const totalPrice = selectedVehicle.basePrice + equipmentPrice + (usesGas ? 850 : 0);
-  const isOverweight = remainingPayload < 100;
-  const requiresTriphase = totalWatts > 7000;
-  const hasWaterPoint = selectedEquipments.includes('kit-eau');
-
-  const filteredCatalog = activeCategory === 'Tous' 
-    ? VEHICLES 
-    : VEHICLES.filter(v => v.category === activeCategory);
+  const toggleEquipment = (id: string) => {
+    setSelectedEquipments(prev =>
+      prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
+    );
+  };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#eef7fc', fontFamily: '"Comfortaa", "Segoe UI", sans-serif', color: '#0f172a' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'system-ui, sans-serif', color: '#0f172a' }}>
       
-      {/* 📍 NAV BAR */}
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 40px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ backgroundColor: '#1d4ed8', color: '#fff', padding: '8px 12px', borderRadius: '50%', fontWeight: 'bold', fontSize: '1rem' }}>
-            BCUC
-          </div>
-          <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.5px' }}>
-            Beau Comme Un Camion
-          </span>
-        </div>
-
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '0.95rem', fontWeight: 600, color: '#475569' }}>
-          <span>Accueil</span>
-          <a href="#catalogue" style={{ color: '#0284c7', textDecoration: 'none', fontWeight: 700 }}>Catalogue Panel</a>
-          <a href="#configurateur" style={{ color: '#475569', textDecoration: 'none' }}>Configurateur</a>
+      {/* HEADER */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 40px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ fontWeight: 900, fontSize: '1.2rem', color: '#0284c7' }}>BEAU COMME UN CAMION</div>
+        <nav style={{ display: 'flex', gap: '20px', fontWeight: 600, fontSize: '0.9rem' }}>
+          <a href="#configurateur" style={{ textDecoration: 'none', color: '#0f172a' }}>Configurateur</a>
+          <a href="#permis" style={{ textDecoration: 'none', color: '#0f172a' }}>Simulateur Permis</a>
+          <a href="#catalogue" style={{ textDecoration: 'none', color: '#0f172a' }}>Catalogue ({VEHICLES.length})</a>
         </nav>
-
-        <button style={{ backgroundColor: '#a5f3fc', border: 'none', padding: '10px 20px', borderRadius: '20px', fontWeight: 700, color: '#0369a1', cursor: 'pointer' }}>
-          Demander un devis
-        </button>
       </header>
 
-      {/* 📍 SECTION CONFIGURATEUR */}
-      <section id="configurateur" style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
+      <main style={{ maxWidth: '1200px', margin: '40px auto', padding: '0 20px' }}>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center', marginBottom: '40px' }}>
+        {/* CONFIGURATEUR PRINCIPAL */}
+        <section id="configurateur" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '40px' }}>
           <div>
-            <h1 style={{ fontSize: '2.8rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '16px', color: '#0f172a' }}>
-              Beau Comme<br />Un Camion
-            </h1>
-            <p style={{ fontSize: '1.1rem', color: '#475569', marginBottom: '24px' }}>
-              Configurateur sur mesure : Validez la faisabilité technique et le tarif de vos concepts mobiles.
-            </p>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: '10px' }}>Configurateur Remorque Sur Mesure</h1>
+            <p style={{ color: '#64748b', marginBottom: '20px' }}>Sélectionnez votre base et vos équipements pour calculer la charge, le tarif et le permis requis.</p>
             
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#64748b' }}>Sélection directe :</span>
-              <select 
-                value={selectedVehicleId} 
-                onChange={(e) => setSelectedVehicleId(e.target.value)}
-                style={{ padding: '10px 16px', borderRadius: '20px', border: '2px solid #0284c7', backgroundColor: '#fff', fontWeight: 700, color: '#0284c7', cursor: 'pointer' }}
-              >
-                {VEHICLES.map(v => (
-                  <option key={v.id} value={v.id}>[{v.category}] {v.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+            <label style={{ fontWeight: 700, display: 'block', marginBottom: '8px' }}>Modèle de remorque :</label>
+            <select 
+              value={selectedVehicleId} 
+              onChange={(e) => setSelectedVehicleId(e.target.value)}
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid #0284c7', fontWeight: 700, marginBottom: '20px' }}
+            >
+              {VEHICLES.map(v => (
+                <option key={v.id} value={v.id}>{v.name} — {v.basePrice.toLocaleString()} € HT ({v.dimensions})</option>
+              ))}
+            </select>
 
-          {/* FICHE MÉTROLOGIE DU MODÈLE SELECTIONNÉ */}
-          <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '20px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', margin: 0 }}>
-                Spécifications : {selectedVehicle.name}
-              </h3>
-              <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800 }}>
-                {selectedVehicle.category}
-              </span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px' }}>
-                <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Prix de base HT</span>
-                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>{selectedVehicle.basePrice.toLocaleString()} €</div>
-              </div>
-              <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px' }}>
-                <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Charge utile max</span>
-                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>{selectedVehicle.maxPayload} kg</div>
-              </div>
-              <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px' }}>
-                <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Dimensions cellule</span>
-                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>{selectedVehicle.dimensions}</div>
-              </div>
-              <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px' }}>
-                <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Conformité</span>
-                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#16a34a' }}>Homologation VASP</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* INDICATEURS TECHNIQUE & PRIX EN DIRECT */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '32px' }}>
-          <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 700 }}>PRIX TOTAL ESTIMÉ HT</span>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#0284c7', marginTop: '4px' }}>
-              {totalPrice.toLocaleString()} €
-            </div>
-          </div>
-
-          <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 700 }}>CHARGE UTILE RESTANTE</span>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: isOverweight ? '#dc2626' : '#16a34a', marginTop: '4px' }}>
-              {remainingPayload} kg
-            </div>
-          </div>
-
-          <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 700 }}>PUISSANCE ÉLECTRIQUE</span>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: requiresTriphase ? '#d97706' : '#2563eb', marginTop: '4px' }}>
-              {(totalWatts / 1000).toFixed(1)} kW
-            </div>
-          </div>
-        </div>
-
-        {/* ALERTES NORMATIVES */}
-        {!hasWaterPoint && (
-          <div style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #ef4444', padding: '16px', borderRadius: '12px', marginBottom: '24px', color: '#991b1b', fontWeight: 600 }}>
-            ⚠️ Non-conformité sanitaire : Point d'eau autonome obligatoire (normes hygiène VASP).
-          </div>
-        )}
-
-        {isOverweight && (
-          <div style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #ef4444', padding: '16px', borderRadius: '12px', marginBottom: '24px', color: '#991b1b', fontWeight: 600 }}>
-            ⚠️ Alerte PTAC : Surcharge de la charge utile autorisée ({remainingPayload} kg).
-          </div>
-        )}
-
-        {/* ÉQUIPEMENTS CHR */}
-        <div style={{ backgroundColor: '#fff', padding: '32px', borderRadius: '20px', border: '1px solid #e2e8f0', marginBottom: '48px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px' }}>
-            Choix des Équipements CHR & Aménagements
-          </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
-            {EQUIPMENTS.map(item => (
-              <label key={item.id} style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                padding: '16px', 
-                borderRadius: '12px', 
-                border: selectedEquipments.includes(item.id) ? '2px solid #0284c7' : '1px solid #e2e8f0',
-                backgroundColor: selectedEquipments.includes(item.id) ? '#f0f9ff' : '#fff',
-                cursor: 'pointer'
-              }}>
-                <input 
-                  type="checkbox" 
-                  checked={selectedEquipments.includes(item.id)}
-                  onChange={() => toggleEquipment(item.id)}
-                  style={{ marginRight: '12px', width: '20px', height: '20px' }}
-                />
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{item.name}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>{item.weight} kg | {item.powerWatts} W | +{item.price} € HT</div>
-                </div>
-              </label>
-            ))}
-          </div>
-
-          <hr style={{ margin: '24px 0', border: 'none', borderTop: '1px solid #e2e8f0' }} />
-
-          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontWeight: 700, color: '#334155' }}>
-            <input 
-              type="checkbox" 
-              checked={usesGas} 
-              onChange={(e) => setUsesGas(e.target.checked)}
-              style={{ marginRight: '12px', width: '20px', height: '20px' }}
-            />
-            Installation & Coffre Gaz étanche homologué VASP (+60 kg | +850 € HT)
-          </label>
-        </div>
-
-        {/* 📍 ESPACE PANEL / CATALOGUE COMPLET */}
-        <div id="catalogue" style={{ marginTop: '60px', borderTop: '2px dashed #cbd5e1', paddingTop: '40px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
-            <div>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
-                Panel complet des Gammes & Modèles
-              </h2>
-              <p style={{ color: '#64748b', margin: '4px 0 0 0' }}>
-                Explorez tous nos formats d'aménagements ambulants (Camions, Remorques, Conteneurs).
-              </p>
-            </div>
-
-            {/* FILTRES PAR CATÉGORIES */}
-            <div style={{ display: 'flex', gap: '8px', backgroundColor: '#fff', padding: '6px', borderRadius: '24px', border: '1px solid #e2e8f0' }}>
-              {(['Tous', 'Camions', 'Remorques', 'Conteneurs'] as const).map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    border: 'none',
-                    fontWeight: 700,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    backgroundColor: activeCategory === cat ? '#0284c7' : 'transparent',
-                    color: activeCategory === cat ? '#fff' : '#64748b'
-                  }}
-                >
-                  {cat}
-                </button>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '12px' }}>Équipements CHR à intégrer :</h3>
+            <div style={{ display: 'grid', gap: '10px' }}>
+              {EQUIPMENTS.map(eq => (
+                <label key={eq.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', backgroundColor: '#fff', borderRadius: '8px', border: selectedEquipments.includes(eq.id) ? '2px solid #0284c7' : '1px solid #cbd5e1', cursor: 'pointer' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <input type="checkbox" checked={selectedEquipments.includes(eq.id)} onChange={() => toggleEquipment(eq.id)} />
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{eq.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{eq.weight} kg | {eq.powerWatts} W ({eq.energy})</div>
+                    </div>
+                  </div>
+                  <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>+{eq.price} €</span>
+                </label>
               ))}
             </div>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '16px', fontWeight: 700, cursor: 'pointer' }}>
+              <input type="checkbox" checked={usesGas} onChange={(e) => setUsesGas(e.target.checked)} />
+              Coffre Gaz étanche VASP & installation certifiée (+60kg | +850€ HT)
+            </label>
           </div>
 
-          {/* GRILLE DE CARTE DE MODÈLES */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
-            {filteredCatalog.map(item => (
-              <div 
-                key={item.id} 
-                style={{ 
-                  backgroundColor: '#fff', 
-                  borderRadius: '16px', 
-                  border: selectedVehicleId === item.id ? '2px solid #0284c7' : '1px solid #e2e8f0', 
-                  padding: '24px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                    <span style={{ backgroundColor: '#f1f5f9', color: '#475569', padding: '4px 8px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700 }}>
-                      {item.category}
-                    </span>
-                    <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>
-                      {item.dimensions}
-                    </span>
-                  </div>
+          {/* RECAPITULATIF TECHNIQUE */}
+          <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0', height: 'fit-content' }}>
+            <img src={selectedVehicle.imageUrl} alt={selectedVehicle.name} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '12px', marginBottom: '16px' }} />
+            
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 12px 0' }}>{selectedVehicle.name}</h2>
+            <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>{selectedVehicle.description}</p>
 
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>
-                    {item.name}
-                  </h3>
-                  
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px', minHeight: '36px' }}>
-                    {item.description}
-                  </p>
-
-                  <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '10px', fontSize: '0.85rem', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                      <span style={{ color: '#64748b' }}>Charge utile max :</span>
-                      <strong style={{ color: '#0f172a' }}>{item.maxPayload} kg</strong>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#64748b' }}>Prix de départ :</span>
-                      <strong style={{ color: '#0284c7' }}>À partir de {item.basePrice.toLocaleString()} € HT</strong>
-                    </div>
-                  </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+              <div style={{ backgroundColor: '#f1f5f9', padding: '12px', borderRadius: '8px' }}>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>PRIX TOTAL ESTIMÉ</span>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0284c7' }}>{totalPrice.toLocaleString()} € HT</div>
+              </div>
+              <div style={{ backgroundColor: '#f1f5f9', padding: '12px', borderRadius: '8px' }}>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>CHARGE RESTANTE</span>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: remainingPayload < 0 ? '#ef4444' : '#16a34a' }}>
+                  {remainingPayload} kg
                 </div>
+              </div>
+            </div>
 
-                <button
-                  onClick={() => {
-                    setSelectedVehicleId(item.id);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '10px',
-                    border: '1px solid #0284c7',
-                    backgroundColor: selectedVehicleId === item.id ? '#e0f2fe' : '#fff',
-                    color: '#0284c7',
-                    fontWeight: 700,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {selectedVehicleId === item.id ? '✓ Modèle sélectionné' : 'Configurer ce modèle ↑'}
-                </button>
+            {remainingPayload < 0 && (
+              <div style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #ef4444', padding: '12px', fontSize: '0.8rem', color: '#991b1b', marginBottom: '16px' }}>
+                ⚠️ <strong>Surcharge détectée :</strong> Vous dépassez le PTAC autorisé de {Math.abs(remainingPayload)} kg. Retirez des équipements ou choisissez un modèle double essieu supérieur.
+              </div>
+            )}
+
+            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span>Type de châssis :</span>
+                <strong>{selectedVehicle.axles === 1 ? 'Simple essieu' : 'Double essieu'}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span>Homologation :</span>
+                <strong style={{ color: '#16a34a' }}>VASP / RESP MAGASIN</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Puissance requise :</span>
+                <strong>{(totalWatts / 1000).toFixed(1)} kW</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SIMULATEUR DE PERMIS DE CONDUIRE */}
+        <section id="permis" style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '40px' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '8px' }}>Simulateur de Permis de Conduire requis</h3>
+          <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>
+            Renseignez le PTAC (champ F.2) de la carte grise de votre véhicule tracteur pour vérifier le permis nécessaire avec la remorque sélectionnée ({selectedVehicle.ptac} kg PTAC).
+          </p>
+
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '4px' }}>PTAC Véhicule Tracteur (kg) :</label>
+              <input 
+                type="number" 
+                value={towVehiclePtra} 
+                onChange={(e) => setTowVehiclePtra(Number(e.target.value))}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+              />
+            </div>
+            <div style={{ flex: 1, backgroundColor: '#f0f9ff', padding: '16px', borderRadius: '8px', border: '1px solid #bae6fd' }}>
+              <span style={{ fontSize: '0.75rem', color: '#0369a1', fontWeight: 700 }}>PERMIS NÉCESSAIRE</span>
+              <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0284c7' }}>{requiredLicense}</div>
+              <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Poids cumulé total : {totalCumulatedWeight} kg</span>
+            </div>
+          </div>
+        </section>
+
+        {/* CATALOGUE COMPLET (LISTING INTEGRAL) */}
+        <section id="catalogue">
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '20px' }}>Catalogue Intégral Remorques ({VEHICLES.length} modèles)</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+            {VEHICLES.map(item => (
+              <div key={item.id} style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '8px', marginBottom: '12px' }} />
+                  <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800 }}>
+                    {item.metierTarget}
+                  </span>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 800, margin: '8px 0 4px 0' }}>{item.name}</h4>
+                  <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '12px' }}>{item.description}</p>
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>{item.basePrice.toLocaleString()} € HT</div>
+                  <button 
+                    onClick={() => { setSelectedVehicleId(item.id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #0284c7', backgroundColor: '#fff', color: '#0284c7', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Configurer ce modèle
+                  </button>
+                </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* FOOTER RGPD */}
-        <footer style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', marginTop: '40px' }}>
-          <input 
-            type="checkbox" 
-            checked={consentRGPD}
-            onChange={(e) => setConsentRGPD(e.target.checked)}
-            style={{ marginRight: '12px' }}
-          />
-          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
-            J'accepte le traitement des données de qualification conformément aux normes RGPD.
-          </span>
-        </footer>
+        {/* DEMANDE DE DEVIS FINAL */}
+        <section style={{ marginTop: '40px', backgroundColor: '#fff', padding: '32px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '16px' }}>Valider la demande de devis</h3>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#64748b', cursor: 'pointer', marginBottom: '20px' }}>
+            <input type="checkbox" checked={consentRGPD} onChange={(e) => setConsentRGPD(e.target.checked)} />
+            J'accepte que l'équipe Beau Comme Un Camion me recontacte avec ma configuration.
+          </label>
+          <button 
+            disabled={!consentRGPD}
+            style={{ width: '100%', padding: '14px', borderRadius: '8px', border: 'none', backgroundColor: consentRGPD ? '#0284c7' : '#94a3b8', color: '#fff', fontWeight: 800, fontSize: '1rem', cursor: consentRGPD ? 'pointer' : 'not-allowed' }}
+          >
+            Envoyer ma configuration ({totalPrice.toLocaleString()} € HT)
+          </button>
+        </section>
 
-      </section>
-
+      </main>
     </div>
   );
 }
