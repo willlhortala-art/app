@@ -1,504 +1,199 @@
-import { useMemo, useState } from "react";
-import {
-  ArrowRight,
-  Gauge,
-  Loader2,
-  Truck,
-  AlertTriangle,
-} from "lucide-react";
-import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import React, { useState } from 'react';
 
-// --- Types & Données Métier ---
-export interface ActivityProfile {
-  id: string;
-  name: string;
-  defaultAlert: 'vert' | 'orange' | 'rouge';
-  pitch: string;
-}
-
-export interface VehicleModel {
-  id: string;
-  name: string;
-  type: 'camion' | 'remorque' | 'kiosque';
-  description: string;
-  basePrice: number;
-  emptyWeightKg: number;
-  ptacKg: number;
-  lengthMeters: number;
-  licenseRequired: 'Permis B' | 'Permis BE' | 'N/A';
-  defaultPowerSupply: string;
-}
-
-export interface Equipment {
-  id: string;
-  name: string;
-  category: 'cuisson' | 'froid' | 'hygiene' | 'energie' | 'amenagement';
-  energyType: 'electric' | 'gas' | 'none';
-  powerWatts: number;
-  weightKg: number;
-  price: number;
-  description: string;
-}
-
-const ACTIVITIES: ActivityProfile[] = [
-  { id: 'burger', name: 'Burger / Snacking Standard', defaultAlert: 'vert', pitch: 'Snacking classique, privilégier le gaz pour la plancha.' },
-  { id: 'pizza-bois', name: 'Pizza Four à Bois', defaultAlert: 'vert', pitch: 'Autonomie totale au bois, électricité restreinte au froid et à l\'éclairage.' },
-  { id: 'pizza-elec', name: 'Pizza Four Électrique', defaultAlert: 'rouge', pitch: 'Attention : puissance importante, triphasé obligatoire sur site.' },
-  { id: 'patisserie', name: 'Pâtisserie / Labo Ambulant', defaultAlert: 'rouge', pitch: 'Véhicule lourd, équipements professionnels nécessitant le bureau d\'études.' },
-  { id: 'bar-jus', name: 'Bar à jus / Glaces / Boissons', defaultAlert: 'orange', pitch: 'Attention au cumul des moteurs de froid en continu par forte chaleur.' },
-  { id: 'marche', name: 'Marché / Boucher / Fromager', defaultAlert: 'orange', pitch: 'Froid commercial intensif, sécuriser l\'alimentation sur les stands.' },
+// --- DONNÉES CATALOGUE ---
+const VEHICLES = [
+  { id: 'master-b', name: 'Plancher Cabine (Permis B)', category: 'Camions', weight: 2700, maxPayload: 800, basePrice: 42000 },
+  { id: 'camion-pizza', name: 'Camion Pizza Pro', category: 'Camions', weight: 2900, maxPayload: 600, basePrice: 48000 },
+  { id: 'remorque-ft', name: 'Remorque Food Truck 3m50', category: 'Remorques', weight: 1200, maxPayload: 1500, basePrice: 22000 },
+  { id: 'remorque-l', name: 'Remorque Lourde Double Essieu', category: 'Remorques', weight: 1600, maxPayload: 1900, basePrice: 26000 },
+  { id: 'container-20', name: 'Container Food 20 pieds', category: 'Containers', weight: 2200, maxPayload: 2800, basePrice: 31000 },
 ];
 
-const VEHICLES: VehicleModel[] = [
-  {
-    id: 'remorque-standard',
-    name: 'Remorque Food Truck (3m à 5.20m)',
-    type: 'remorque',
-    description: 'Format polyvalent pour snacking, pâtes, asiatique, traiteur.',
-    basePrice: 27000,
-    emptyWeightKg: 1050,
-    ptacKg: 1600,
-    lengthMeters: 3.6,
-    licenseRequired: 'Permis B',
-    defaultPowerSupply: 'Mono 230 V standard',
-  },
-  {
-    id: 'remorque-vide',
-    name: 'Remorque Food Truck Vide',
-    type: 'remorque',
-    description: 'Base électrique nue, équipements définis entièrement par le client.',
-    basePrice: 21000,
-    emptyWeightKg: 800,
-    ptacKg: 1500,
-    lengthMeters: 3.5,
-    licenseRequired: 'Permis B',
-    defaultPowerSupply: 'Indéterminé',
-  },
-  {
-    id: 'remorque-pizza-elec',
-    name: 'Remorque Pizza Four Électrique',
-    type: 'remorque',
-    description: 'Équipée d\'une table froide, saladette et four électrique double.',
-    basePrice: 32000,
-    emptyWeightKg: 1200,
-    ptacKg: 1800,
-    lengthMeters: 4.0,
-    licenseRequired: 'Permis BE',
-    defaultPowerSupply: 'Triphasé obligatoire',
-  },
-  {
-    id: 'camion-burger',
-    name: 'Camion Food Truck Burger / Traiteur',
-    type: 'camion',
-    description: 'Porteur robuste, cuisson gaz ou options électriques.',
-    basePrice: 48000,
-    emptyWeightKg: 2600,
-    ptacKg: 3500,
-    lengthMeters: 3.7,
-    licenseRequired: 'Permis B',
-    defaultPowerSupply: 'Mono 230 V standard',
-  }
-];
-
-const EQUIPMENTS: Equipment[] = [
-  {
-    id: 'fryer-gas-2x16',
-    name: 'Friteuse double 2x16L Gaz Inox',
-    category: 'cuisson',
-    energyType: 'gas',
-    powerWatts: 0,
-    weightKg: 65,
-    price: 2450,
-    description: 'Rendement élevé 30kg/h, fonctionnement au gaz.',
-  },
-  {
-    id: 'fryer-elec-2x12',
-    name: 'Friteuse double 2x12L Électrique',
-    category: 'cuisson',
-    energyType: 'electric',
-    powerWatts: 12000,
-    weightKg: 45,
-    price: 1980,
-    description: 'Forte puissance électrique (nécessite 32A ou triphasé).',
-  },
-  {
-    id: 'fridge-table-3p',
-    name: 'Table Réfrigérée Inox 3 Portes',
-    category: 'froid',
-    energyType: 'electric',
-    powerWatts: 350,
-    weightKg: 125,
-    price: 2800,
-    description: 'Froid professionnel ventilé 410L.',
-  },
-  {
-    id: 'pack-hygiene-vasp',
-    name: 'Pack Lave-mains Autonome Commande Au Genou',
-    category: 'hygiene',
-    energyType: 'electric',
-    powerWatts: 1500,
-    weightKg: 25,
-    price: 1150,
-    description: 'Obligatoire norme VASP/HACCP.',
-  },
-  {
-    id: 'coffret-triphase-32a',
-    name: 'Coffret Électrique Triphasé 32A',
-    category: 'energie',
-    energyType: 'electric',
-    powerWatts: 0,
-    weightKg: 12,
-    price: 1450,
-    description: 'Tableau divisionnaire NF C 15-100.',
-  }
+const EQUIPMENTS = [
+  { id: 'friteuse-elec', name: 'Friteuse Électrique 2x8L', weight: 45, powerWatts: 6000, price: 1200 },
+  { id: 'friteuse-gaz', name: 'Friteuse Gaz 2x10L', weight: 55, powerWatts: 200, price: 1800 },
+  { id: 'frigo-3p', name: 'Tour Réfrigérée 3 Portes', weight: 120, powerWatts: 450, price: 2400 },
+  { id: 'plancha-gaz', name: 'Plancha Gaz Inox', weight: 35, powerWatts: 0, price: 950 },
+  { id: "hotte-ext", name: "Hotte d'Extraction Pro", weight: 40, powerWatts: 600, price: 1500 },
 ];
 
 export default function Home() {
-  const [selectedActivity, setSelectedActivity] = useState<ActivityProfile>(ACTIVITIES[0]);
-  const [selectedVehicle, setSelectedVehicle] = useState<VehicleModel>(VEHICLES[0]);
-  const [selectedEquipmentIds, setSelectedEquipmentIds] = useState<string[]>(["fridge-table-3p", "pack-hygiene-vasp"]);
-  const [hasElectricCertainty, setHasElectricCertainty] = useState<boolean>(true);
-  
-  const [clientName, setClientName] = useState("");
-  const [clientEmail, setClientEmail] = useState("");
-  const [clientPhone, setClientPhone] = useState("");
-  const [projectNotes, setProjectNotes] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(VEHICLES[0].id);
+  const [selectedEquipments, setSelectedEquipments] = useState<string[]>([]);
+  const [usesGas, setUsesGas] = useState(false);
+  const [consentRGPD, setConsentRGPD] = useState(false);
 
-  const totalPrice = useMemo(() => {
-    const optionsSum = selectedEquipmentIds.reduce((sum, id) => {
-      const eq = EQUIPMENTS.find((e) => e.id === id);
-      return sum + (eq ? eq.price : 0);
-    }, 0);
-    return selectedVehicle.basePrice + optionsSum;
-  }, [selectedVehicle, selectedEquipmentIds]);
-
-  const totalWeightKg = useMemo(() => {
-    const equipmentsWeight = selectedEquipmentIds.reduce((sum, id) => {
-      const eq = EQUIPMENTS.find((e) => e.id === id);
-      return sum + (eq ? eq.weightKg : 0);
-    }, 0);
-    return selectedVehicle.emptyWeightKg + equipmentsWeight + 150;
-  }, [selectedVehicle, selectedEquipmentIds]);
-
-  const totalPowerKw = useMemo(() => {
-    const watts = selectedEquipmentIds.reduce((sum, id) => {
-      const eq = EQUIPMENTS.find((e) => e.id === id);
-      return sum + (eq ? eq.powerWatts : 0);
-    }, 0);
-    return watts / 1000;
-  }, [selectedEquipmentIds]);
-
-  const isOverweight = totalWeightKg > selectedVehicle.ptacKg;
-
-  const dynamicQualification = useMemo(() => {
-    const isVehicleEmpty = selectedVehicle.id === 'remorque-vide';
-    const isHeavyElectric = totalPowerKw > 7.4 || selectedActivity.defaultAlert === 'rouge' || !hasElectricCertainty;
-
-    if (isVehicleEmpty || isHeavyElectric) {
-      return {
-        level: 'rouge',
-        badgeClass: 'bg-red-500 text-white',
-        label: 'ROUGE : Triphasé obligatoire ou véhicule vide / Passage obligatoire par le bureau d\'études avant signature.'
-      };
-    }
-    if (totalPowerKw > 3.5 || selectedActivity.defaultAlert === 'orange') {
-      return {
-        level: 'orange',
-        badgeClass: 'bg-amber-500 text-slate-950',
-        label: 'ORANGE : Appareil électrique puissant / Prévoir une prise 32A ou vérifier le cumul.'
-      };
-    }
-    return {
-      level: 'vert',
-      badgeClass: 'bg-emerald-500 text-white',
-      label: 'VERT : Standard gaz / Froid & éclairage 230V simple. Validable de suite.'
-    };
-  }, [selectedVehicle, selectedActivity, totalPowerKw, hasElectricCertainty]);
+  const selectedVehicle = VEHICLES.find(v => v.id === selectedVehicleId) || VEHICLES[0];
 
   const toggleEquipment = (id: string) => {
-    setSelectedEquipmentIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    setSelectedEquipments(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
 
-  const handleSendDevis = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsDialogOpen(false);
-      toast.success("Étude enregistrée avec succès !");
-    }, 1200);
-  };
+  // --- CALCULS EN TEMPS RÉEL ---
+  const currentEquipments = EQUIPMENTS.filter(e => selectedEquipments.includes(e.id));
+  
+  let equipmentWeight = currentEquipments.reduce((sum, item) => sum + item.weight, 0);
+  let totalWatts = currentEquipments.reduce((sum, item) => sum + item.powerWatts, 0);
+  let equipmentPrice = currentEquipments.reduce((sum, item) => sum + item.price, 0);
+
+  if (usesGas) {
+    equipmentWeight += 60; // Caisson + 2 bouteilles
+  }
+
+  const remainingPayload = selectedVehicle.maxPayload - equipmentWeight;
+  const totalPrice = selectedVehicle.basePrice + equipmentPrice;
+  const isOverweight = remainingPayload < 100; // Marge 100kg
+  const requiresTriphase = totalWatts > 7000;  // Seuil 7kW
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
-      <Toaster position="top-center" />
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif', backgroundColor: '#f4f5f7' }}>
+      
+      {/* 📍 BANDE DÉROULANTE / SIDEBAR GAUCHE : SÉLECTION VÉHICULE */}
+      <aside style={{ width: '280px', backgroundColor: '#1e293b', color: '#fff', padding: '24px 16px', flexShrink: 0 }}>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '20px', color: '#38bdf8' }}>
+          🚚 Beau Comme Un Camion
+        </h2>
+        
+        <label style={{ fontSize: '0.85rem', color: '#94a3b8', display: 'block', marginBottom: '8px' }}>
+          SÉLECTIONNER UN VÉHICULE
+        </label>
+        
+        <select 
+          value={selectedVehicleId} 
+          onChange={(e) => setSelectedVehicleId(e.target.value)}
+          style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#334155', color: '#fff', border: '1px solid #475569', fontSize: '0.95rem', cursor: 'pointer', marginBottom: '24px' }}
+        >
+          <optgroup label="Camions">
+            {VEHICLES.filter(v => v.category === 'Camions').map(v => (
+              <option key={v.id} value={v.id}>{v.name}</option>
+            ))}
+          </optgroup>
+          <optgroup label="Remorques">
+            {VEHICLES.filter(v => v.category === 'Remorques').map(v => (
+              <option key={v.id} value={v.id}>{v.name}</option>
+            ))}
+          </optgroup>
+          <optgroup label="Containers">
+            {VEHICLES.filter(v => v.category === 'Containers').map(v => (
+              <option key={v.id} value={v.id}>{v.name}</option>
+            ))}
+          </optgroup>
+        </select>
 
-      <header className="bg-slate-900 text-white pt-10 pb-16 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs sm:text-sm font-medium mb-4">
-            <Truck className="w-4 h-4" />
-            Module de Qualification Commerciale • Guide BCC
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white max-w-4xl mx-auto">
-            Tunnel de Qualification Client
-          </h1>
+        {/* Dynamic Details Sidebar */}
+        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '8px', fontSize: '0.85rem', color: '#cbd5e1' }}>
+          <p style={{ margin: '0 0 8px 0' }}><strong>Prix de base :</strong> {selectedVehicle.basePrice.toLocaleString()} € HT</p>
+          <p style={{ margin: '0 0 8px 0' }}><strong>Charge Utile Max :</strong> {selectedVehicle.maxPayload} kg</p>
+          <p style={{ margin: 0 }}><strong>Catégorie :</strong> {selectedVehicle.category}</p>
         </div>
-      </header>
+      </aside>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* 📍 ZONE PRINCIPALE DROITE */}
+      <main style={{ flex: 1, padding: '32px', display: 'flex', flexDirection: 'column', justifySpace: 'between', overflowY: 'auto' }}>
+        <div>
           
-          <div className="lg:col-span-8 space-y-8">
-
-            <Card className="shadow-md border-slate-200">
-              <CardHeader>
-                <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold">1</span>
-                  Le Projet & l'Activité (Le "Pourquoi")
-                </CardTitle>
-                <CardDescription>Sélectionnez le métier pour pré-orienter le niveau de risque.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {ACTIVITIES.map((act) => {
-                    const isSelected = selectedActivity.id === act.id;
-                    return (
-                      <div
-                        key={act.id}
-                        onClick={() => setSelectedActivity(act)}
-                        className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
-                          isSelected ? "border-amber-500 bg-amber-500/5" : "border-slate-200 bg-white"
-                        }`}
-                      >
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-bold text-xs text-slate-900">{act.name}</span>
-                            <div className={`w-3 h-3 rounded-full ${act.defaultAlert === 'vert' ? 'bg-emerald-500' : act.defaultAlert === 'orange' ? 'bg-amber-500' : 'bg-red-500'}`} />
-                          </div>
-                          <p className="text-[11px] text-slate-500">{act.pitch}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-md border-slate-200">
-              <CardHeader>
-                <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold">2</span>
-                  Gabarit & Véhicule (Le "Contenant")
-                </CardTitle>
-                <CardDescription>Vérification du poids à vide, PTAC max et du permis requis.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {VEHICLES.map((veh) => {
-                    const isSelected = selectedVehicle.id === veh.id;
-                    return (
-                      <div
-                        key={veh.id}
-                        onClick={() => setSelectedVehicle(veh)}
-                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
-                          isSelected ? "border-amber-500 bg-amber-500/5" : "border-slate-200 bg-white"
-                        }`}
-                      >
-                        <div>
-                          <div className="flex justify-between mb-2">
-                            <Badge variant="secondary" className="text-[10px]">{veh.type.toUpperCase()}</Badge>
-                            <span className="text-xs font-semibold text-slate-600">{veh.licenseRequired}</span>
-                          </div>
-                          <h4 className="font-bold text-slate-900 text-sm">{veh.name}</h4>
-                          <p className="text-xs text-slate-500 mt-1">{veh.description}</p>
-                        </div>
-                        <div className="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
-                          <span className="text-slate-500">PTAC : {veh.ptacKg} kg</span>
-                          <span className="font-bold text-slate-900">{veh.basePrice.toLocaleString()} € HT</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className={`p-3 rounded-lg border text-xs flex items-center justify-between ${isOverweight ? "bg-red-50 border-red-300 text-red-800" : "bg-slate-50 border-slate-200 text-slate-700"}`}>
-                  <span className="font-medium flex items-center gap-2">
-                    {isOverweight && <AlertTriangle className="w-4 h-4 text-red-600" />}
-                    Poids total estimé : {totalWeightKg} kg (PTAC max : {selectedVehicle.ptacKg} kg)
-                  </span>
-                  <span className="font-bold">{selectedVehicle.licenseRequired}</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-md border-slate-200">
-              <CardHeader>
-                <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold">3</span>
-                  Bilan d'Énergie & des Flux
-                </CardTitle>
-                <CardDescription>Séparation Cuisson/Froid/Hygiène et question bloquante sur l'emplacement.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Cuisson / Froid / Hygiène (Watts & Énergie)</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {EQUIPMENTS.map((eq) => {
-                      const isChecked = selectedEquipmentIds.includes(eq.id);
-                      return (
-                        <div
-                          key={eq.id}
-                          onClick={() => toggleEquipment(eq.id)}
-                          className={`p-3 rounded-lg border cursor-pointer flex items-center justify-between text-xs transition-all ${
-                            isChecked ? "border-amber-500 bg-amber-500/5 font-medium" : "border-slate-200 bg-white text-slate-700"
-                          }`}
-                        >
-                          <div>
-                            <p className="font-semibold text-slate-900">{eq.name}</p>
-                            <p className="text-[10px] text-slate-500">
-                              {eq.powerWatts > 0 ? <span className="text-blue-600 font-bold">{eq.powerWatts}W</span> : <span className="text-amber-600">Gaz / Autre</span>} • +{eq.weightKg}kg
-                            </p>
-                          </div>
-                          <span className="font-bold">+{eq.price} €</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-red-50 border border-red-200 space-y-3">
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-xs font-bold text-red-900 uppercase tracking-wide">Le Piège de l'Emplacement (Question Bloquante)</h4>
-                      <p className="text-xs text-red-700 mt-0.5 font-medium">
-                        « Avez-vous la certitude d'avoir du Triphasé ou du 32A sur vos emplacements ? »
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-1">
-                    <Button
-                      size="sm"
-                      variant={hasElectricCertainty ? "default" : "outline"}
-                      className={hasElectricCertainty ? "bg-red-600 hover:bg-red-700 text-white text-xs" : "text-xs"}
-                      onClick={() => setHasElectricCertainty(true)}
-                    >
-                      Oui, certitude confirmée
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={!hasElectricCertainty ? "destructive" : "outline"}
-                      className={!hasElectricCertainty ? "bg-red-700 text-white text-xs" : "text-xs"}
-                      onClick={() => setHasElectricCertainty(false)}
-                    >
-                      Non / Incertain (Bloque en Rouge)
-                    </Button>
-                  </div>
-                </div>
-
-              </CardContent>
-            </Card>
-
-            <Card className="bg-slate-900 text-white border-none shadow-md">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                  <Gauge className="w-4 h-4" />
-                  Étape 4 : Bilan de Qualification Dynamique (Le Verdict)
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-xs">
-                <div className="p-3 rounded-lg bg-slate-800 border border-slate-700 flex flex-col gap-2">
-                  <span className="text-slate-400 font-medium">Verdict du Tunnel :</span>
-                  <div className={`p-3 rounded-lg font-bold text-xs ${dynamicQualification.badgeClass}`}>
-                    {dynamicQualification.label}
-                  </div>
-                </div>
-                <div className="text-[11px] text-slate-400 flex justify-between pt-1">
-                  <span>Puissance totale : <strong>{totalPowerKw.toFixed(1)} kW</strong></span>
-                  <span>Poids total : <strong>{totalWeightKg} kg</strong></span>
-                </div>
-              </CardContent>
-            </Card>
-
-          </div>
-
-          <div className="lg:col-span-4">
-            <div className="sticky top-6 space-y-6">
-              <Card className="shadow-lg border-amber-500/30 overflow-hidden">
-                <div className="bg-slate-900 text-white p-6">
-                  <span className="text-xs font-medium text-amber-400 uppercase tracking-wider block mb-1">
-                    Récapitulatif Financier
-                  </span>
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-3xl font-black">{totalPrice.toLocaleString("fr-FR")} €</span>
-                    <span className="text-xs text-slate-400">HT</span>
-                  </div>
-                </div>
-
-                <CardContent className="p-6 bg-white space-y-4">
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger>
-                      <Button className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 text-base shadow-md cursor-pointer">
-                        Valider l'étude & Transmettre
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </DialogTrigger>
-
-                    <DialogContent className="sm:max-w-md">
-                      <DialogHeader>
-                        <DialogTitle className="text-xl font-bold">Transmission Dossier</DialogTitle>
-                        <DialogDescription>
-                          Vérification du statut validé : <span className="font-bold text-slate-900">{dynamicQualification.label}</span>
-                        </DialogDescription>
-                      </DialogHeader>
-
-                      <form onSubmit={handleSendDevis} className="space-y-4 mt-2">
-                        <div className="space-y-1.5">
-                          <Label>Nom du client *</Label>
-                          <Input required placeholder="Jean Dupont" value={clientName} onChange={(e) => setClientName(e.target.value)} />
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <Input required type="email" placeholder="Email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} />
-                          <Input required type="tel" placeholder="Téléphone" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} />
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label>Notes d'entretien</Label>
-                          <Textarea rows={3} placeholder="Remarques emplacement..." value={projectNotes} onChange={(e) => setProjectNotes(e.target.value)} />
-                        </div>
-                        <Button type="submit" disabled={isSubmitting} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3">
-                          {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Envoyer"}
-                        </Button>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
-                </CardContent>
-              </Card>
+          {/* 📍 HAUT DE PAGE : DASHBOARD INDICATEURS DE CALCUL EN DIRECT */}
+          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+            
+            <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>PRIX TOTAL HT</span>
+              <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#0f172a', marginTop: '4px' }}>
+                {totalPrice.toLocaleString()} €
+              </div>
             </div>
-          </div>
+
+            <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>CHARGE UTILE RESTANTE</span>
+              <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: isOverweight ? '#dc2626' : '#16a34a', marginTop: '4px' }}>
+                {remainingPayload} kg
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>PUISSANCE ÉLECTRIQUE</span>
+              <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: requiresTriphase ? '#d97706' : '#2563eb', marginTop: '4px' }}>
+                {(totalWatts / 1000).toFixed(1)} kW
+              </div>
+            </div>
+
+          </section>
+
+          {/* ALERTES ERGONOMIQUES */}
+          {isOverweight && (
+            <div style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #ef4444', padding: '16px', borderRadius: '8px', marginBottom: '24px', color: '#991b1b' }}>
+              <strong>⚠️ Alerte Surcharge PTAC :</strong> La charge utile restante est insuffisante ({remainingPayload} kg). Basculez vers des équipements gaz ou un châssis remorque.
+            </div>
+          )}
+
+          {requiresTriphase && !isOverweight && (
+            <div style={{ backgroundColor: '#fffbe6', borderLeft: '4px solid #f59e0b', padding: '16px', borderRadius: '8px', marginBottom: '24px', color: '#92400e' }}>
+              <strong>⚡ Alerte Électricité :</strong> Puissance supérieure à 7 kW. Alimentation Triphasée (400V) requise pour le client.
+            </div>
+          )}
+
+          {/* 📍 MILIEU DE PAGE : CHOIX DU MATÉRIEL CHR */}
+          <section style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '32px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', margin: '0 0 16px 0', color: '#1e293b' }}>
+              Équipements & Aménagements Cuisine
+            </h3>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
+              {EQUIPMENTS.map(item => (
+                <label key={item.id} style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '12px', 
+                  borderRadius: '8px', 
+                  border: selectedEquipments.includes(item.id) ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                  backgroundColor: selectedEquipments.includes(item.id) ? '#eff6ff' : '#fff',
+                  cursor: 'pointer'
+                }}>
+                  <input 
+                    type="checkbox" 
+                    checked={selectedEquipments.includes(item.id)}
+                    onChange={() => toggleEquipment(item.id)}
+                    style={{ marginRight: '12px', width: '18px', height: '18px' }}
+                  />
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#1e293b' }}>{item.name}</div>
+                    <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{item.weight} kg | {item.powerWatts} W | +{item.price} €</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+
+            <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #e2e8f0' }} />
+
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontWeight: 600, color: '#334155' }}>
+              <input 
+                type="checkbox" 
+                checked={usesGas} 
+                onChange={(e) => setUsesGas(e.target.checked)}
+                style={{ marginRight: '10px', width: '18px', height: '18px' }}
+              />
+              Pack Coffre Gaz Étanche (+60 kg | +850 € HT)
+            </label>
+          </section>
 
         </div>
+
+        {/* 📍 BAS DE PAGE : RGPD ET CONFORMITÉ */}
+        <footer style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginTop: 'auto' }}>
+          <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', color: '#64748b', cursor: 'pointer' }}>
+            <input 
+              type="checkbox" 
+              checked={consentRGPD}
+              onChange={(e) => setConsentRGPD(e.target.checked)}
+              style={{ marginRight: '10px' }}
+            />
+            J'accepte le traitement des données de qualification conformément à la politique de confidentialité de l'entreprise.
+          </label>
+        </footer>
+
       </main>
+
     </div>
   );
 }
