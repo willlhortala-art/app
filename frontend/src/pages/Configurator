@@ -1,0 +1,85 @@
+import React, { useState } from 'react';
+import { TRUCK_MODELS, KITCHEN_EQUIPMENT } from '../config/truckData';
+import { calculateProjectFeasibility } from '../utils/calculateFeasibility';
+
+export default function Configurator() {
+  const [selectedTruck, setSelectedTruck] = useState(TRUCK_MODELS[0].id);
+  const [selectedEquipment, setSelectedEquipment] = useState([]);
+  const [usesGas, setUsesGas] = useState(false);
+
+  const toggleEquipment = (id) => {
+    setSelectedEquipment(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const results = calculateProjectFeasibility(selectedEquipment, selectedTruck, usesGas);
+
+  return (
+    <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '600px', margin: '0 auto' }}>
+      <h2>Configurateur Technique B2B</h2>
+
+      {/* Choix du véhicule */}
+      <section style={{ marginBottom: '20px' }}>
+        <h3>1. Modèle de Véhicule</h3>
+        {TRUCK_MODELS.map(truck => (
+          <label key={truck.id} style={{ display: 'block', margin: '8px 0' }}>
+            <input 
+              type="radio" 
+              name="truck" 
+              value={truck.id} 
+              checked={selectedTruck === truck.id} 
+              onChange={() => setSelectedTruck(truck.id)} 
+            />
+            {truck.name} (Payload Max: {truck.maxPayload} kg)
+          </label>
+        ))}
+      </section>
+
+      {/* Choix des équipements */}
+      <section style={{ marginBottom: '20px' }}>
+        <h3>2. Équipements CHR</h3>
+        {KITCHEN_EQUIPMENT.map(item => (
+          <label key={item.id} style={{ display: 'block', margin: '8px 0' }}>
+            <input 
+              type="checkbox" 
+              checked={selectedEquipment.includes(item.id)} 
+              onChange={() => toggleEquipment(item.id)} 
+            />
+            {item.name} — {item.weight} kg | {item.powerWatts} W
+          </label>
+        ))}
+
+        <label style={{ display: 'block', marginTop: '15px', fontWeight: 'bold' }}>
+          <input 
+            type="checkbox" 
+            checked={usesGas} 
+            onChange={(e) => setUsesGas(e.target.checked)} 
+          />
+          Installation Gaz (Caisson + 2 bouteilles Propane)
+        </label>
+      </section>
+
+      {/* Bilan Technique */}
+      <section style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
+        <h3>3. Faisabilité Technique</h3>
+        <p><strong>Poids Total Estimé :</strong> {results.totalWeight} kg</p>
+        <p><strong>Charge Utile Restante :</strong> {results.remainingPayload} kg</p>
+        <p><strong>Puissance Électrique :</strong> {(results.totalWatts / 1000).toFixed(2)} kW</p>
+
+        {results.alertMessage && (
+          <div style={{ 
+            marginTop: '15px', 
+            padding: '10px', 
+            borderRadius: '5px', 
+            backgroundColor: results.status === 'CRITIQUE_POIDS' ? '#ffe6e6' : '#fff3cd',
+            color: results.status === 'CRITIQUE_POIDS' ? '#990000' : '#856404',
+            fontWeight: 'bold'
+          }}>
+            {results.alertMessage}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
